@@ -1,0 +1,73 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg-deep);
+}
+
+.main-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Wraps the dashboard (main-layout + all its modals) so it can be hidden
+   without unmounting — display: contents means it's invisible as a box and
+   its children lay out in .app-container exactly as if this wrapper didn't
+   exist; display: none removes it from layout while keeping the Mapbox
+   instance and all dashboard state alive underneath. */
+.dashboard-body {
+  display: contents;
+}
+.dashboard-body--hidden {
+  display: none;
+}
+
+/* ── Exposure load toast ─────────────────────────────────── */
+.exposure-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 1100;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, rgba(20, 28, 44, 0.97) 0%, rgba(14, 20, 32, 0.97) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  border-radius: 999px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  color: #e2e8f0;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  animation: exposure-toast-in 0.22s ease;
+}
+
+@keyframes exposure-toast-in {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.exposure-toast__spin {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(96, 165, 250, 0.25);
+  border-top-color: #60a5fa;
+  animation: exposure-spin 0.9s linear infinite;
+}
+
+@keyframes exposure-spin { to { transform: rotate(360deg); } }
+
+.exposure-toast--error {
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fecaca;
+  cursor: pointer;
+}
+
+.exposure-toast__hint {
+  font-size: 10px;
+  color: rgba(254, 202, 202, 0.7);
+  margin-left: 6px;
+}

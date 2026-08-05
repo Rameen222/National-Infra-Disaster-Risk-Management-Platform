@@ -1,0 +1,356 @@
+/* ══════════════════════════════════════════════════════════
+   Susceptibility Style Modal – Floating on map (portal)
+   ══════════════════════════════════════════════════════════ */
+
+.sus-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+}
+
+.sus-modal {
+  position: fixed;
+  width: 300px;
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
+  background: linear-gradient(165deg, rgba(15, 23, 42, 0.97), rgba(10, 15, 30, 0.98));
+  border: 1px solid rgba(76, 175, 80, 0.30);
+  border-radius: 10px;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.55),
+    0 0 20px rgba(76, 175, 80, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: sus-modal-in 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
+  z-index: 1001;
+}
+
+@keyframes sus-modal-in {
+  from { opacity: 0; transform: scale(0.92) translateY(-12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.sus-modal::-webkit-scrollbar { width: 4px; }
+.sus-modal::-webkit-scrollbar-track { background: transparent; }
+.sus-modal::-webkit-scrollbar-thumb { background: rgba(76, 175, 80, 0.3); border-radius: 2px; }
+
+/* ── Header ─────────────────────────────────────── */
+.sus-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.15);
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), transparent);
+  cursor: grab;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.sus-modal-header:active { cursor: grabbing; }
+
+.sus-modal-badge {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.18), rgba(76, 175, 80, 0.08));
+  border: 1px solid rgba(76, 175, 80, 0.25);
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #66bb6a;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.sus-modal-close {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  transition: all 0.2s;
+}
+.sus-modal-close:hover {
+  background: rgba(76, 175, 80, 0.15);
+  border-color: rgba(76, 175, 80, 0.3);
+  color: #66bb6a;
+}
+
+/* ── Body ────────────────────────────────────────── */
+.sus-modal-body {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Layer Section ───────────────────────────────── */
+.sus-section {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--sus-accent, #888);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.sus-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sus-section-header input[type="checkbox"] {
+  accent-color: var(--sus-accent, #4caf50);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sus-section-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sus-section-title {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sus-accent, #ccc);
+  letter-spacing: 0.3px;
+}
+
+.sus-section-order {
+  display: flex;
+  gap: 2px;
+}
+
+.sus-order-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 9px;
+  transition: all 0.2s;
+}
+.sus-order-btn:hover:not(:disabled) {
+  background: rgba(76, 175, 80, 0.12);
+  border-color: rgba(76, 175, 80, 0.3);
+  color: #66bb6a;
+}
+.sus-order-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* ── Section Body (style controls) ───────────────── */
+.sus-section-body {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  transition: opacity 0.15s;
+}
+
+.sus-section--hidden {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.sus-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sus-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sus-val {
+  color: #66bb6a;
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.sus-color-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+}
+
+.sus-color-wrap input[type="color"] {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+  flex-shrink: 0;
+}
+.sus-color-wrap input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; border-radius: 4px; }
+.sus-color-wrap input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
+
+.sus-hex {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: monospace;
+  letter-spacing: 0.4px;
+}
+
+.sus-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, rgba(76, 175, 80, 0.2), #66bb6a);
+  outline: none;
+  cursor: pointer;
+}
+.sus-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #66bb6a;
+  border: 2px solid var(--bg-base);
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
+}
+
+/* ── Footer ──────────────────────────────────────── */
+.sus-modal-footer {
+  display: flex;
+  padding: 8px 12px;
+  border-top: 1px solid rgba(76, 175, 80, 0.15);
+  justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+  background: rgba(10, 15, 30, 0.95);
+}
+
+.sus-modal-done {
+  padding: 5px 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(76, 175, 80, 0.35);
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.12), rgba(76, 175, 80, 0.06));
+  color: #66bb6a;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sus-modal-done:hover {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.22), rgba(76, 175, 80, 0.12));
+  border-color: rgba(76, 175, 80, 0.55);
+  color: #81c784;
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.12);
+}
+
+/* ── Sidebar susceptibility panel items ──────────── */
+.sus-panel {
+  padding: 2px 0 4px 0;
+}
+
+.sus-item {
+  display: flex;
+  align-items: center;
+  padding: 7px 12px;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.15s;
+}
+
+.sus-item--active {
+  background: rgba(76, 175, 80, 0.06);
+}
+
+.sus-item input[type="checkbox"] {
+  accent-color: #4caf50;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sus-item-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sus-item-label {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sus-item--active .sus-item-label {
+  color: var(--text-primary);
+}
+
+.sus-customize-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: calc(100% - 24px);
+  margin: 4px 12px 2px;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.06), transparent);
+  border: 1px solid rgba(76, 175, 80, 0.15);
+  border-radius: 5px;
+  color: #66bb6a;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sus-customize-btn:hover {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.12), rgba(76, 175, 80, 0.04));
+  border-color: rgba(76, 175, 80, 0.30);
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.08);
+}

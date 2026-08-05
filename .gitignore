@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.vite/
+
+# Credentials — never commit service account keys
+geekey.json
+*.serviceaccount.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.local
+# Keep the template committed for fresh-clone bootstrap
+!.env.example
+!**/.env.example
+
+# Editor directories
+.vscode/
+.idea/
+
+# Test coverage
+coverage/
+
+# Large geospatial data files
+*.geojson
+!client/public/**/*.geojson
+!client/public/**/*.csv
+!client/public/**/*.json
+!client/public/**/*.qmd
+
+# Public folder assets are required for the GIS app to run on a fresh clone
+!client/public/
+!client/public/**
+client/public.rar
+client/public.zip
+
+# Large GIS datasets — too big for GitHub (100MB hard limit).
+# These must be transferred manually (zip/cloud drive) into the same
+# relative paths under client/public/ on any machine running the app.
+client/public/scenario_outputs/
+client/public/floodextent/
+client/public/flood/
+client/public/pakistan_districts.geojson
+
+# Claude session data
+.claude/
+
+# Python
+__pycache__/
+pybackend/temp/
+
+# Logs
+server.log
+pybackend.log

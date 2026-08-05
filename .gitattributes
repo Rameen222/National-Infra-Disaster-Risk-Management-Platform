@@ -1,0 +1,7 @@
+# Always check out shell scripts with LF endings — CRLF breaks them on
+# Linux/macOS even when the executable bit is set.
+*.sh text eol=lf
+
+# Batch files are Windows-only — keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf

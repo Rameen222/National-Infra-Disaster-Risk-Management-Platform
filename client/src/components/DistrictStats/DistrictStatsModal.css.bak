@@ -1,0 +1,425 @@
+/* ── Stats panel (right-side BI drawer) ───────────────────── */
+.ds-panel {
+  position: fixed;
+  top: 160px;
+  right: 10px;
+  z-index: 500;
+  width: 340px;
+  height: calc(100vh - 180px);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #111827 0%, #0d1117 100%);
+  border: 1px solid rgba(79, 195, 247, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  overflow: hidden;
+  animation: ds-slide-in 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes ds-slide-in {
+  from { opacity:0; transform: translateX(40px); }
+  to   { opacity:1; transform: translateX(0); }
+}
+
+/* ── Panel header ────────────────────────────────────────── */
+.ds-ph {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  height: 40px;
+  background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
+  border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+  flex-shrink: 0;
+  gap: 10px;
+  cursor: grab;
+  user-select: none;
+}
+.ds-ph:active { cursor: grabbing; }
+
+.ds-ph-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ds-badge {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #b3deff;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ds-pname {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-ph-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.ds-maxbtn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  color: #cdd8e4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.ds-maxbtn:hover {
+  background: rgba(79, 195, 247, 0.25);
+  border-color: #4fc3f7;
+  color: #fff;
+}
+.ds-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  color: #cdd8e4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.ds-close:hover {
+  background: rgba(239, 83, 80, 0.35);
+  border-color: #ef5350;
+  color: #fff;
+}
+
+/* ── 3D Buildings button ───────────────────────────────── */
+.ds-buildings-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 152, 0, 0.18);
+  border: 1px solid rgba(255, 152, 0, 0.4);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  color: #ffb74d;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.ds-buildings-btn:hover {
+  background: rgba(255, 152, 0, 0.35);
+  border-color: #ff9800;
+  color: #fff;
+}
+.ds-buildings-btn--active {
+  background: rgba(76, 175, 80, 0.22);
+  border-color: rgba(76, 175, 80, 0.5);
+  color: #81c784;
+}
+.ds-buildings-btn--active:hover {
+  background: rgba(239, 83, 80, 0.25);
+  border-color: #ef5350;
+  color: #ef9a9a;
+}
+.ds-buildings-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.ds-buildings-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-top-color: #ffb74d;
+  border-radius: 50%;
+  animation: ds-spin 0.6s linear infinite;
+}
+@keyframes ds-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ds-3d-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(100, 181, 246, 0.18);
+  border: 1px solid rgba(100, 181, 246, 0.4);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  color: #90caf9;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.ds-3d-btn:hover {
+  background: rgba(100, 181, 246, 0.35);
+  border-color: #64b5f6;
+  color: #fff;
+}
+.ds-3d-btn--active {
+  background: rgba(76, 175, 80, 0.22);
+  border-color: rgba(76, 175, 80, 0.5);
+  color: #81c784;
+}
+.ds-3d-btn--active:hover {
+  background: rgba(239, 83, 80, 0.25);
+  border-color: #ef5350;
+  color: #ef9a9a;
+}
+
+/* Maximized state */
+.ds-panel.ds-maximized {
+  top: 0; left: 0; right: 0;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  z-index: 700;
+  background: rgba(8, 16, 24, 0.82);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: none;
+  animation: none;
+}
+
+/* ── Scrollable body ─────────────────────────────────────── */
+.ds-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ds-scroll::-webkit-scrollbar        { width: 4px; }
+.ds-scroll::-webkit-scrollbar-track  { background: transparent; }
+.ds-scroll::-webkit-scrollbar-thumb  { background: #2a4a7f; border-radius: 4px; }
+
+/* ── Section container ───────────────────────────────────── */
+.ds-scroll section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Section header ──────────────────────────────────────── */
+.ds-sechead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #4fc3f7;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(79, 195, 247, 0.15);
+}
+
+.ds-sechead-icon { font-size: 13px; line-height: 1; }
+
+.ds-sechead-label { flex: 1; }
+
+.ds-sechead-right {
+  font-size: 9px;
+  font-weight: 600;
+  color: #5a7485;
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+/* ── KPI grid ────────────────────────────────────────────── */
+.ds-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.ds-kpi {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 2px solid var(--a);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ds-kpi-val {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--a);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-kpi-lbl {
+  font-size: 9px;
+  font-weight: 600;
+  color: #6b7f90;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ── Gender row ──────────────────────────────────────────── */
+.ds-gender-row {
+  display: flex;
+  gap: 7px;
+}
+
+.ds-gender-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 3px solid var(--gc);
+  border-radius: 8px;
+  padding: 9px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ds-gender-val {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--gc);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-gender-lbl {
+  font-size: 9px;
+  font-weight: 600;
+  color: #6b7f90;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ds-gender-pct {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gc);
+  opacity: 0.75;
+}
+
+/* ── Chart wrappers ──────────────────────────────────────── */
+.ds-chart-wrap {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(79, 195, 247, 0.08);
+  border-radius: 8px;
+  padding: 6px 4px 4px;
+}
+
+/* ── Road cards ──────────────────────────────────────────── */
+.ds-road-row {
+  display: flex;
+  gap: 7px;
+}
+
+.ds-road-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 2px solid var(--rc);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ds-road-val {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--rc);
+}
+
+.ds-road-lbl {
+  font-size: 9px;
+  font-weight: 600;
+  color: #6b7f90;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ── Recharts tooltip ────────────────────────────────────── */
+.ds-tt {
+  background: rgba(13, 17, 23, 0.97);
+  border: 1px solid rgba(79, 195, 247, 0.28);
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: #c8d8e8;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Recharts legend text */
+.recharts-legend-item-text { color: #8899aa !important; }
+
+/* ── Sub-section label (Education / Health under GOVT. FACILITIES) ─ */
+.ds-subsec-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #5a7485;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 4px 2px 2px;
+}
+
+/* ── No-data placeholder ─────────────────────────────────── */
+.ds-no-data {
+  border: 1px dashed rgba(79, 195, 247, 0.18);
+  border-radius: 7px;
+  padding: 10px 14px;
+  font-size: 11px;
+  color: #445566;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ── Section enter animation ─────────────────────────────── */
+@keyframes ds-sec-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ds-sec-1 { animation: ds-sec-enter 0.28s ease both; animation-delay: 0.04s; }
+.ds-sec-2 { animation: ds-sec-enter 0.28s ease both; animation-delay: 0.10s; }
+.ds-sec-3 { animation: ds-sec-enter 0.28s ease both; animation-delay: 0.16s; }
+.ds-sec-4 { animation: ds-sec-enter 0.28s ease both; animation-delay: 0.22s; }
+
+

@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "name": "Sample School – Islamabad", "level": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [73.0879, 33.7044] } },
+    { "type": "Feature", "properties": { "name": "Sample School – Rawalpindi", "level": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [73.0469, 33.5951] } },
+    { "type": "Feature", "properties": { "name": "Sample School – Lahore", "level": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [74.3287, 31.5797] } },
+    { "type": "Feature", "properties": { "name": "Sample School – Faisalabad", "level": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [73.1650, 31.4204] } },
+    { "type": "Feature", "properties": { "name": "Sample School – Multan", "level": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [71.4949, 30.1875] } },
+    { "type": "Feature", "properties": { "name": "Sample School – Karachi", "level": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [67.0311, 24.8907] } },
+    { "type": "Feature", "properties": { "name": "Sample School – Hyderabad", "level": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [68.3878, 25.4260] } },
+    { "type": "Feature", "properties": { "name": "Sample School – Peshawar", "level": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [71.5549, 34.0451] } },
+    { "type": "Feature", "properties": { "name": "Sample School – Quetta", "level": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [67.0050, 30.2098] } },
+    { "type": "Feature", "properties": { "name": "Sample School – Gujranwala", "level": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [74.1945, 32.1877] } }
+  ]
+}

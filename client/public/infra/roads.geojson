@@ -1,0 +1,41 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "N-5 National Highway (sample)", "road_class": "national_highway", "placeholder": true },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [71.5249, 34.0151], [73.0169, 33.5651], [74.3587, 31.5497],
+          [71.5249, 30.1575], [68.8574, 27.7052], [68.3578, 25.3960],
+          [67.0011, 24.8607]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "M-2 Motorway – Islamabad to Lahore (sample)", "road_class": "motorway", "placeholder": true },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[73.0479, 33.6844], [73.7, 32.6], [74.3587, 31.5497]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "N-25 – Karachi to Quetta (sample)", "road_class": "national_highway", "placeholder": true },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[67.0011, 24.8607], [66.9750, 30.1798]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "N-35 Karakoram Highway (sample)", "road_class": "national_highway", "placeholder": true },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[73.0479, 33.6844], [73.2215, 34.1463], [74.3436, 35.9208], [75.4223, 36.8493]]
+      }
+    }
+  ]
+}

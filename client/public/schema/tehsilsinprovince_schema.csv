@@ -1,0 +1,10 @@
+layer,workspace,store,title,geometry,crs,features,fields,types
+province_Azad Kashmir,infra_portal,province_Azad Kashmir,province_Azad Kashmir,Polygon,EPSG:4326,32,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+province_Balochistan,infra_portal,province_Balochistan,province_Balochistan,Polygon,EPSG:4326,103,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+province_Federal Capital,infra_portal,province_Federal Capital,province_Federal Capital,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+province_Gilgit Baltistan,infra_portal,province_Gilgit Baltistan,province_Gilgit Baltistan,Polygon,EPSG:4326,24,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+province_Indian Illegally Occupied Jammu Kashmir,infra_portal,province_Indian Illegally Occupied Jammu Kashmir,province_Indian Illegally Occupied Jammu Kashmir,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+province_Khyber Pakhtunkhwa,infra_portal,province_Khyber Pakhtunkhwa,province_Khyber Pakhtunkhwa,Polygon,EPSG:4326,153,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+province_na,infra_portal,province_na,province_na,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+province_Punjab,infra_portal,province_Punjab,province_Punjab,Polygon,EPSG:4326,139,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+province_Sindh,infra_portal,province_Sindh,province_Sindh,Polygon,EPSG:4326,124,country;name;district;province;division;geometry,object;object;object;object;object;geometry

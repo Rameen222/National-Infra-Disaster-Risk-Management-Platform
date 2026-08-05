@@ -1,0 +1,203 @@
+.expsum-modal {
+  position: fixed;
+  z-index: 1000;
+  width: min(360px, 94vw);
+  background: linear-gradient(180deg, rgba(82, 70, 200, 0.96) 0%, rgba(46, 38, 140, 0.96) 100%);
+  border: 1px solid rgba(167, 139, 250, 0.45);
+  border-radius: 14px;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  overflow: hidden;
+  color: #f1f5f9;
+  animation: expsum-pop 0.22s cubic-bezier(0.2, 0.8, 0.3, 1.1);
+}
+
+@keyframes expsum-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.expsum-streak {
+  position: absolute;
+  width: 200%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  pointer-events: none;
+  opacity: 0.55;
+}
+.expsum-streak--1 { top: 26%; left: -50%; animation: expsum-streak-l 6s linear infinite; }
+.expsum-streak--2 { top: 72%; left: -50%; animation: expsum-streak-l 7.5s linear infinite reverse; }
+@keyframes expsum-streak-l {
+  0%   { transform: translateX(-20%); }
+  100% { transform: translateX(80%); }
+}
+
+.expsum-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 12px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  position: relative;
+  z-index: 2;
+}
+
+.expsum-header-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.expsum-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.14);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  flex-shrink: 0;
+}
+
+.expsum-header-text { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+
+.expsum-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.expsum-subtitle {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.72);
+  margin-top: 1px;
+}
+
+.expsum-close {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #f1f5f9;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+.expsum-close:hover {
+  background: rgba(239, 68, 68, 0.20);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.expsum-body {
+  padding: 12px 12px 13px;
+  position: relative;
+  z-index: 2;
+}
+
+.expsum-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.expsum-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #0f172a;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  transition: transform 0.15s ease;
+}
+.expsum-card:hover { transform: translateY(-1px); }
+
+.expsum-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.expsum-card-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.expsum-card-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.02em;
+}
+
+.expsum-card-val {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.0;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+
+.expsum-card--edu   .expsum-card-icon { background: #dbeafe; color: #1d4ed8; }
+.expsum-card--rail  .expsum-card-icon { background: #e0f2fe; color: #0369a1; }
+.expsum-card--amber .expsum-card-icon { background: #fef3c7; color: #b45309; }
+.expsum-card--rose  .expsum-card-icon { background: #ffe4e6; color: #be123c; }
+.expsum-card--teal  .expsum-card-icon { background: #ccfbf1; color: #0f766e; }
+.expsum-card--pink  .expsum-card-icon { background: #fce7f3; color: #be185d; }
+
+.expsum-pop {
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #0f172a;
+  text-align: center;
+}
+.expsum-pop-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.expsum-pop-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #ede9fe;
+  color: #6d28d9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.expsum-pop-val {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.0;
+  color: #4338ca;
+  font-variant-numeric: tabular-nums;
+}
+
+.expsum-foot {
+  margin-top: 10px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.75);
+  text-align: center;
+  line-height: 1.4;
+}

@@ -1,0 +1,178 @@
+/* ══════════════════════════════════════════════════════════
+   District Tehsil Sidebar – second panel beside the main Sidebar,
+   appears once a district is selected. Same dark chrome as .sidebar,
+   sky-blue accent (matches the app's existing "tehsil = sky blue"
+   convention used by the map's Tehsils toggle and TehsilBuildingsPanel).
+   ══════════════════════════════════════════════════════════ */
+
+.tehsil-sidebar {
+  flex-shrink: 0;
+  width: 260px;
+  min-width: 260px;
+  background: #04080f;
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 4;
+  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.40);
+}
+
+.tehsil-sidebar-header {
+  position: relative;
+  padding: 14px 40px 16px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), transparent);
+  flex-shrink: 0;
+}
+
+.tehsil-sidebar-title {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.tehsil-sidebar-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+
+.tehsil-sidebar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+  cursor: pointer;
+  width: fit-content;
+}
+.tehsil-sidebar-back:hover { color: #bae6fd; }
+
+.tehsil-sidebar-district {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: #f0f9ff;
+  line-height: 1.2;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tehsil-sidebar-collapse {
+  position: absolute;
+  top: 12px;
+  right: 10px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tehsil-sidebar-collapse:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.40);
+  color: #7dd3fc;
+}
+
+.tehsil-sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 8px;
+}
+
+/* ── Hazard/terrain profile — only rendered while a tehsil is active ──── */
+.tehsil-hazard-card {
+  flex-shrink: 0;
+  max-height: 46%;
+  overflow-y: auto;
+  margin: 0 8px 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(240, 180, 41, 0.06);
+  border: 1px solid rgba(240, 180, 41, 0.25);
+  border-top: 2px solid var(--warn, #F0B429);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tehsil-hazard-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--warn, #F0B429);
+}
+
+.tehsil-hazard-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tehsil-hazard-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.tehsil-hazard-value {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+/* ── Collapsed state — a slim bookmark tab ───────────────── */
+.tehsil-sidebar--tab {
+  flex-shrink: 0;
+  width: 32px;
+  min-width: 32px;
+  background: #04080f;
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+  border-top: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 16px 0;
+  cursor: pointer;
+  color: #7dd3fc;
+  transition: background 0.2s ease;
+}
+
+.tehsil-sidebar--tab:hover {
+  background: rgba(56, 189, 248, 0.06);
+}
+
+.tehsil-sidebar-tab-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}

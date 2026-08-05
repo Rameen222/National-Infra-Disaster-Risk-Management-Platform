@@ -1,0 +1,107 @@
+/* ══════════════════════════════════════════════════════════
+   NIDRMP – Global Design Tokens & Base Styles
+   Professional Dark Theme with Diverging Accent Palette
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Surface / Background — warmed navy, not icy black ─ */
+  --bg-deep:       #0A1420;
+  --bg-base:       #0E1B29;
+  --bg-surface:    #142434;
+  --bg-elevated:   #1B2E42;
+  --bg-hover:      #22384F;
+  --bg-card:       rgba(237, 231, 217, 0.035);
+
+  /* ── Borders ───────────────────────────────────────── */
+  --border-subtle: rgba(183, 196, 206, 0.08);
+  --border-default:rgba(183, 196, 206, 0.14);
+  --border-accent: rgba(61, 180, 188, 0.28);
+
+  /* ── Primary Palette (Deep Teal) ────────────────────── */
+  --primary:       #3DB4BC;
+  --primary-light: #7ED9DE;
+  --primary-muted: rgba(61, 180, 188, 0.18);
+  --primary-glow:  rgba(61, 180, 188, 0.10);
+
+  /* ── Accent – Emerald ──────────────────────────────── */
+  --accent:        #3eeba8;
+  --accent-light:  #80ffc8;
+  --accent-muted:  rgba(62, 235, 168, 0.18);
+
+  /* ── Warning – Amber (reserved for elevated-risk signal) */
+  --warn:          #F0B429;
+  --warn-light:    #F6CC66;
+  --warn-muted:    rgba(240, 180, 41, 0.16);
+
+  /* ── Danger – Rose (reserved for critical signal) ────── */
+  --danger:        #E5646B;
+  --danger-light:  #EF9AA0;
+  --danger-muted:  rgba(229, 100, 107, 0.16);
+
+  /* ── Violet / Plum ─────────────────────────────────── */
+  --violet:        #A873AE;
+  --violet-muted:  rgba(168, 115, 174, 0.16);
+
+  /* ── Text — warm parchment instead of icy blue-white ─── */
+  --text-primary:  #F3EFE4;
+  --text-secondary:#C7D0D2;
+  --text-muted:    #98A9B8;
+  --text-dim:      #7D8FA2;
+
+  /* ── Misc ──────────────────────────────────────────── */
+  --radius-sm:     6px;
+  --radius-md:     10px;
+  --radius-lg:     14px;
+  --radius-pill:   999px;
+  --shadow-md:     0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg:     0 8px 40px rgba(0, 0, 0, 0.55);
+  --shadow-float:  0 16px 48px rgba(0, 0, 0, 0.5);
+  --transition:    0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Spacing scale (8px base, 4px half-step) ─────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* ── Font — Inter for UI/body, Gloock for headings only */
+  --font-sans:     'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-display:  'Gloock', Georgia, 'Iowan Old Style', serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Scrollbar global reset ──────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--bg-hover); }
+
+::selection {
+  background: var(--primary-muted);
+  color: var(--primary-light);
+}

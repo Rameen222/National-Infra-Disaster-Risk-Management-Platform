@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "name": "Sample Hospital – Islamabad", "type": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [73.0479, 33.6844] } },
+    { "type": "Feature", "properties": { "name": "Sample Hospital – Rawalpindi", "type": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [73.0169, 33.5651] } },
+    { "type": "Feature", "properties": { "name": "Sample Hospital – Lahore", "type": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [74.3587, 31.5497] } },
+    { "type": "Feature", "properties": { "name": "Sample Hospital – Faisalabad", "type": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [73.1350, 31.4504] } },
+    { "type": "Feature", "properties": { "name": "Sample Hospital – Multan", "type": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [71.5249, 30.1575] } },
+    { "type": "Feature", "properties": { "name": "Sample Hospital – Karachi", "type": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [67.0011, 24.8607] } },
+    { "type": "Feature", "properties": { "name": "Sample Hospital – Hyderabad", "type": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [68.3578, 25.3960] } },
+    { "type": "Feature", "properties": { "name": "Sample Hospital – Peshawar", "type": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [71.5249, 34.0151] } },
+    { "type": "Feature", "properties": { "name": "Sample Hospital – Quetta", "type": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [66.9750, 30.1798] } },
+    { "type": "Feature", "properties": { "name": "Sample Hospital – Sialkot", "type": "placeholder", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [74.5229, 32.4945] } }
+  ]
+}

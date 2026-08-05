@@ -1,0 +1,252 @@
+/* Fixed dock — same position/size as .ds-dock-right (district view), so
+   the right edge of the screen never shifts or overlaps regardless of
+   whether a province or a district is selected. */
+.ps-panel {
+  position: fixed;
+  top: 102px; /* below the 50px header + 52px map toolbar */
+  right: 0;
+  bottom: 0;
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  background: #07101e;
+  border-left: 1px solid rgba(56, 189, 248, 0.18);
+  box-shadow: var(--shadow-float);
+  z-index: 500;
+  overflow: hidden;
+}
+
+.ps-ph {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  height: 58px;
+  user-select: none;
+  flex-shrink: 0;
+}
+.ps-ph-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  text-align: center;
+}
+
+.ps-badge {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(56, 189, 248, 0.75);
+  font-weight: 800;
+}
+
+.ps-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text-primary);
+  letter-spacing: 0.2px;
+}
+
+.ps-ph-actions {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.ps-close {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  width: 30px; height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+.ps-close:hover {
+  background: var(--danger-muted);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.ps-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 14px 28px;
+}
+
+.ps-scroll::-webkit-scrollbar { width: 5px; }
+.ps-scroll::-webkit-scrollbar-track { background: transparent; }
+.ps-scroll::-webkit-scrollbar-thumb { background: rgba(56,189,248,0.15); border-radius: 4px; }
+
+.ps-coverage {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  padding: 6px 0 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 14px;
+}
+
+/* KPI grid */
+.ps-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.ps-kpi {
+  background: rgba(255,255,255,0.04);
+  border-radius: var(--radius-md);
+  padding: 12px 8px 10px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-top: 3px solid var(--a, var(--primary));
+}
+.ps-kpi-val {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+.ps-kpi-lbl {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Section */
+.ps-sec { margin-bottom: 16px; }
+
+.ps-sechead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+.ps-sechead-label {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  color: #38bdf8;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ps-sechead-right {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.45);
+  white-space: nowrap;
+}
+
+/* Gender */
+.ps-gender-row { display: flex; gap: 8px; }
+.ps-gender-card {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 3px solid var(--gc);
+}
+.ps-gender-val { font-size: 19px; font-weight: 800; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.ps-gender-lbl { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.5); margin-top: 3px; }
+.ps-gender-pct { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.3); margin-top: 2px; }
+
+.ps-chart-wrap {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  padding: 10px 0;
+}
+
+/* Roads */
+.ps-road-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.ps-road-card {
+  flex: 1 1 45%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius-md);
+  padding: 12px 10px;
+  text-align: center;
+  border-left: 4px solid var(--rc);
+}
+.ps-road-val { font-size: 19px; font-weight: 800; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.ps-road-lbl { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.45); margin-top: 3px; }
+
+.ps-tt {
+  background: rgba(11, 17, 32, 0.97);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+/* Structure breakdown */
+.ps-str-grid {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ps-str-chip {
+  flex: 1;
+  min-width: 80px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-top: 3px solid var(--sc);
+  border-radius: var(--radius-sm);
+  padding: 10px 8px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ps-str-val {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.ps-str-pct {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+}
+
+.ps-str-lbl {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  line-height: 1.3;
+}

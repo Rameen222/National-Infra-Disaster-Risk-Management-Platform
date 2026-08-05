@@ -1,0 +1,167 @@
+layer,workspace,store,title,geometry,crs,features,fields,types
+district_Abbottabad,infra_portal,district_Abbottabad,district_Abbottabad,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Astore,infra_portal,district_Astore,district_Astore,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Attock,infra_portal,district_Attock,district_Attock,Polygon,EPSG:4326,6,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Awaran,infra_portal,district_Awaran,district_Awaran,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Badin,infra_portal,district_Badin,district_Badin,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Bagh,infra_portal,district_Bagh,district_Bagh,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Bahawalnagar,infra_portal,district_Bahawalnagar,district_Bahawalnagar,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Bahawalpur,infra_portal,district_Bahawalpur,district_Bahawalpur,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Bahwalnagar,infra_portal,district_Bahwalnagar,district_Bahwalnagar,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Bahwalpur,infra_portal,district_Bahwalpur,district_Bahwalpur,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Bajaur,infra_portal,district_Bajaur,district_Bajaur,Polygon,EPSG:4326,7,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Bannu,infra_portal,district_Bannu,district_Bannu,Polygon,EPSG:4326,6,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Barkhan,infra_portal,district_Barkhan,district_Barkhan,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Batagram,infra_portal,district_Batagram,district_Batagram,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Bhakkar,infra_portal,district_Bhakkar,district_Bhakkar,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Bhimber,infra_portal,district_Bhimber,district_Bhimber,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Buner,infra_portal,district_Buner,district_Buner,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Central Karachi,infra_portal,district_Central Karachi,district_Central Karachi,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Chagai,infra_portal,district_Chagai,district_Chagai,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Chakwal,infra_portal,district_Chakwal,district_Chakwal,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Chaman,infra_portal,district_Chaman,district_Chaman,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Charsadda,infra_portal,district_Charsadda,district_Charsadda,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Chiniot,infra_portal,district_Chiniot,district_Chiniot,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Chitral,infra_portal,district_Chitral,district_Chitral,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Dadu,infra_portal,district_Dadu,district_Dadu,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Darel,infra_portal,district_Darel,district_Darel,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Dera Bugti,infra_portal,district_Dera Bugti,district_Dera Bugti,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Dera Ghazi Khan,infra_portal,district_Dera Ghazi Khan,district_Dera Ghazi Khan,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Dera Ismail Khan,infra_portal,district_Dera Ismail Khan,district_Dera Ismail Khan,Polygon,EPSG:4326,6,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Diamir,infra_portal,district_Diamir,district_Diamir,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Duki,infra_portal,district_Duki,district_Duki,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_East Karachi,infra_portal,district_East Karachi,district_East Karachi,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Faisalabad,infra_portal,district_Faisalabad,district_Faisalabad,Polygon,EPSG:4326,6,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Ghanche,infra_portal,district_Ghanche,district_Ghanche,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Ghizer,infra_portal,district_Ghizer,district_Ghizer,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Ghotki,infra_portal,district_Ghotki,district_Ghotki,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Gilgit,infra_portal,district_Gilgit,district_Gilgit,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Gujranwala,infra_portal,district_Gujranwala,district_Gujranwala,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Gujrat,infra_portal,district_Gujrat,district_Gujrat,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Gupis-Yasin,infra_portal,district_Gupis-Yasin,district_Gupis-Yasin,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Gwadar,infra_portal,district_Gwadar,district_Gwadar,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Hafizabad,infra_portal,district_Hafizabad,district_Hafizabad,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Hangu,infra_portal,district_Hangu,district_Hangu,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Haripur,infra_portal,district_Haripur,district_Haripur,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Harnai,infra_portal,district_Harnai,district_Harnai,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Hattian,infra_portal,district_Hattian,district_Hattian,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Haveli,infra_portal,district_Haveli,district_Haveli,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Hub,infra_portal,district_Hub,district_Hub,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Hunza,infra_portal,district_Hunza,district_Hunza,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Hyderabad,infra_portal,district_Hyderabad,district_Hyderabad,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Indian Illegally Occupied Jammu Kashmir,infra_portal,district_Indian Illegally Occupied Jammu Kashmir,district_Indian Illegally Occupied Jammu Kashmir,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Islamabad,infra_portal,district_Islamabad,district_Islamabad,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Jacobabad,infra_portal,district_Jacobabad,district_Jacobabad,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Jaffarabad,infra_portal,district_Jaffarabad,district_Jaffarabad,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Jamshoro,infra_portal,district_Jamshoro,district_Jamshoro,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Jhal Magsi,infra_portal,district_Jhal Magsi,district_Jhal Magsi,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Jhang,infra_portal,district_Jhang,district_Jhang,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Jhelum,infra_portal,district_Jhelum,district_Jhelum,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Kachhi,infra_portal,district_Kachhi,district_Kachhi,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Kalat,infra_portal,district_Kalat,district_Kalat,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Karak,infra_portal,district_Karak,district_Karak,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Kashmore,infra_portal,district_Kashmore,district_Kashmore,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Kasur,infra_portal,district_Kasur,district_Kasur,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Keamari,infra_portal,district_Keamari,district_Keamari,MultiPolygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Kech,infra_portal,district_Kech,district_Kech,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Khairpur,infra_portal,district_Khairpur,district_Khairpur,Polygon,EPSG:4326,8,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Khanewal,infra_portal,district_Khanewal,district_Khanewal,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Kharan,infra_portal,district_Kharan,district_Kharan,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Kharmang,infra_portal,district_Kharmang,district_Kharmang,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Khushab,infra_portal,district_Khushab,district_Khushab,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Khuzdar,infra_portal,district_Khuzdar,district_Khuzdar,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Khyber,infra_portal,district_Khyber,district_Khyber,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Killa Abdullah,infra_portal,district_Killa Abdullah,district_Killa Abdullah,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Killa Saifullah,infra_portal,district_Killa Saifullah,district_Killa Saifullah,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Kohat,infra_portal,district_Kohat,district_Kohat,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Kohlu,infra_portal,district_Kohlu,district_Kohlu,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Kolai Palas,infra_portal,district_Kolai Palas,district_Kolai Palas,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Korangi,infra_portal,district_Korangi,district_Korangi,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Kotli,infra_portal,district_Kotli,district_Kotli,Polygon,EPSG:4326,6,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Kurram,infra_portal,district_Kurram,district_Kurram,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Lahore,infra_portal,district_Lahore,district_Lahore,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Lakki Marwat,infra_portal,district_Lakki Marwat,district_Lakki Marwat,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Larkana,infra_portal,district_Larkana,district_Larkana,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Lasbela,infra_portal,district_Lasbela,district_Lasbela,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Layyah,infra_portal,district_Layyah,district_Layyah,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Lehri,infra_portal,district_Lehri,district_Lehri,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Lodhran,infra_portal,district_Lodhran,district_Lodhran,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Loralai,infra_portal,district_Loralai,district_Loralai,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Lower Dir,infra_portal,district_Lower Dir,district_Lower Dir,Polygon,EPSG:4326,6,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Lower Kohistan,infra_portal,district_Lower Kohistan,district_Lower Kohistan,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Malakand,infra_portal,district_Malakand,district_Malakand,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Malir,infra_portal,district_Malir,district_Malir,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Mandi Bahauddin,infra_portal,district_Mandi Bahauddin,district_Mandi Bahauddin,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Mansehra,infra_portal,district_Mansehra,district_Mansehra,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Mardan,infra_portal,district_Mardan,district_Mardan,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Mastung,infra_portal,district_Mastung,district_Mastung,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Matiari,infra_portal,district_Matiari,district_Matiari,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Mianwali,infra_portal,district_Mianwali,district_Mianwali,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Mirpur Khas,infra_portal,district_Mirpur Khas,district_Mirpur Khas,Polygon,EPSG:4326,7,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Mirpur,infra_portal,district_Mirpur,district_Mirpur,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Mohmand,infra_portal,district_Mohmand,district_Mohmand,Polygon,EPSG:4326,8,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Multan,infra_portal,district_Multan,district_Multan,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Musakhel,infra_portal,district_Musakhel,district_Musakhel,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Muzaffarabad,infra_portal,district_Muzaffarabad,district_Muzaffarabad,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Muzaffargarh,infra_portal,district_Muzaffargarh,district_Muzaffargarh,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_na,infra_portal,district_na,district_na,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Nagar,infra_portal,district_Nagar,district_Nagar,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Nankana Sahib,infra_portal,district_Nankana Sahib,district_Nankana Sahib,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Narowal,infra_portal,district_Narowal,district_Narowal,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Nasirabad,infra_portal,district_Nasirabad,district_Nasirabad,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Naushahro Feroze,infra_portal,district_Naushahro Feroze,district_Naushahro Feroze,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Neelam Valley,infra_portal,district_Neelam Valley,district_Neelam Valley,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_North Waziristan,infra_portal,district_North Waziristan,district_North Waziristan,Polygon,EPSG:4326,10,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Nowshera,infra_portal,district_Nowshera,district_Nowshera,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Nushki,infra_portal,district_Nushki,district_Nushki,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Okara,infra_portal,district_Okara,district_Okara,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Orakzai,infra_portal,district_Orakzai,district_Orakzai,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Pakpattan,infra_portal,district_Pakpattan,district_Pakpattan,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Panjgur,infra_portal,district_Panjgur,district_Panjgur,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Peshawar,infra_portal,district_Peshawar,district_Peshawar,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Pishin,infra_portal,district_Pishin,district_Pishin,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Poonch,infra_portal,district_Poonch,district_Poonch,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Qambar Shahdadkot,infra_portal,district_Qambar Shahdadkot,district_Qambar Shahdadkot,Polygon,EPSG:4326,7,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Quetta,infra_portal,district_Quetta,district_Quetta,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Rahim Yar Khan,infra_portal,district_Rahim Yar Khan,district_Rahim Yar Khan,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Rajanpur,infra_portal,district_Rajanpur,district_Rajanpur,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Rawalpindi,infra_portal,district_Rawalpindi,district_Rawalpindi,Polygon,EPSG:4326,7,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Roundu,infra_portal,district_Roundu,district_Roundu,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Sahiwal,infra_portal,district_Sahiwal,district_Sahiwal,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Sanghar,infra_portal,district_Sanghar,district_Sanghar,Polygon,EPSG:4326,6,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Sargodha,infra_portal,district_Sargodha,district_Sargodha,Polygon,EPSG:4326,7,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Shaheed Benazir Abad,infra_portal,district_Shaheed Benazir Abad,district_Shaheed Benazir Abad,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Shangla,infra_portal,district_Shangla,district_Shangla,Polygon,EPSG:4326,6,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Sheikhupura,infra_portal,district_Sheikhupura,district_Sheikhupura,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Sherani,infra_portal,district_Sherani,district_Sherani,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Shigar,infra_portal,district_Shigar,district_Shigar,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Shikarpur,infra_portal,district_Shikarpur,district_Shikarpur,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Sialkot,infra_portal,district_Sialkot,district_Sialkot,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Sibi,infra_portal,district_Sibi,district_Sibi,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Skardu,infra_portal,district_Skardu,district_Skardu,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Sohbatpur,infra_portal,district_Sohbatpur,district_Sohbatpur,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_South Karachi,infra_portal,district_South Karachi,district_South Karachi,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_South Waziristan,infra_portal,district_South Waziristan,district_South Waziristan,Polygon,EPSG:4326,8,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Sudhnoti,infra_portal,district_Sudhnoti,district_Sudhnoti,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Sujawal,infra_portal,district_Sujawal,district_Sujawal,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Sukkur,infra_portal,district_Sukkur,district_Sukkur,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Surab,infra_portal,district_Surab,district_Surab,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Swabi,infra_portal,district_Swabi,district_Swabi,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Swat,infra_portal,district_Swat,district_Swat,Polygon,EPSG:4326,9,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Tando Allahyar,infra_portal,district_Tando Allahyar,district_Tando Allahyar,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Tando Muhammad Khan,infra_portal,district_Tando Muhammad Khan,district_Tando Muhammad Khan,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Tangir,infra_portal,district_Tangir,district_Tangir,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Tank,infra_portal,district_Tank,district_Tank,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Tharparkar,infra_portal,district_Tharparkar,district_Tharparkar,Polygon,EPSG:4326,7,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Thatta,infra_portal,district_Thatta,district_Thatta,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Toba Tek Singh,infra_portal,district_Toba Tek Singh,district_Toba Tek Singh,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Tor Ghar,infra_portal,district_Tor Ghar,district_Tor Ghar,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Umer Kot,infra_portal,district_Umer Kot,district_Umer Kot,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Upper Dir,infra_portal,district_Upper Dir,district_Upper Dir,Polygon,EPSG:4326,7,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Upper Kohistan,infra_portal,district_Upper Kohistan,district_Upper Kohistan,Polygon,EPSG:4326,4,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Usta Muhammad,infra_portal,district_Usta Muhammad,district_Usta Muhammad,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Vehari,infra_portal,district_Vehari,district_Vehari,Polygon,EPSG:4326,3,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Washuk,infra_portal,district_Washuk,district_Washuk,Polygon,EPSG:4326,5,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_West Karachi,infra_portal,district_West Karachi,district_West Karachi,Polygon,EPSG:4326,1,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Zhob,infra_portal,district_Zhob,district_Zhob,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry
+district_Ziarat,infra_portal,district_Ziarat,district_Ziarat,Polygon,EPSG:4326,2,country;name;district;province;division;geometry,object;object;object;object;object;geometry

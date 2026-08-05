@@ -1,0 +1,289 @@
+/* ══════════════════════════════════════════════════════════
+   Flood Layers Panel – Compact sidebar + floating modal
+   ══════════════════════════════════════════════════════════ */
+
+.flood-panel {
+  padding: 2px 0 4px 0;
+}
+
+/* ── Compact row ─────────────────────────────────────── */
+.flood-item {
+  display: flex;
+  align-items: center;
+  padding: 7px 12px;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.15s;
+}
+
+.flood-item--active {
+  background: var(--danger-muted);
+}
+
+.flood-item input[type="checkbox"] {
+  accent-color: var(--danger);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.flood-item-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.flood-item-label {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flood-item--active .flood-item-label {
+  color: var(--text-primary);
+}
+
+.flood-item-gear {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: all 0.2s;
+}
+.flood-item-gear:hover {
+  opacity: 1;
+  color: var(--primary);
+  background: var(--primary-glow);
+}
+.flood-item-gear--on {
+  opacity: 1;
+  color: var(--primary);
+}
+
+/* ══════════════════════════════════════════════════════════
+   Flood Style Modal – floating on map
+   ══════════════════════════════════════════════════════════ */
+.flood-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+}
+
+.flood-modal {
+  position: fixed;
+  width: 270px;
+  background: linear-gradient(165deg, rgba(15, 23, 42, 0.97), rgba(10, 15, 30, 0.98));
+  border: 1px solid rgba(251, 113, 133, 0.30);
+  border-radius: 10px;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.55),
+    0 0 20px rgba(251, 113, 133, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  animation: flood-modal-in 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
+  z-index: 1001;
+}
+
+@keyframes flood-modal-in {
+  from { opacity: 0; transform: scale(0.92) translateY(-12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.flood-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+  border-bottom: 1px solid rgba(251, 113, 133, 0.15);
+  background: linear-gradient(135deg, rgba(251, 113, 133, 0.08), transparent);
+  cursor: grab;
+  user-select: none;
+}
+.flood-modal-header:active { cursor: grabbing; }
+
+.flood-modal-badge {
+  background: linear-gradient(135deg, rgba(251, 113, 133, 0.18), rgba(251, 113, 133, 0.08));
+  border: 1px solid rgba(251, 113, 133, 0.25);
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--danger);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.flood-modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.flood-modal-order-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.2s;
+}
+.flood-modal-order-btn:hover:not(:disabled) {
+  background: var(--primary-glow);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.flood-modal-order-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.flood-modal-close {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  transition: all 0.2s;
+}
+.flood-modal-close:hover {
+  background: rgba(251, 113, 133, 0.15);
+  border-color: rgba(251, 113, 133, 0.3);
+  color: var(--danger);
+}
+
+.flood-modal-body {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flood-modal-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flood-modal-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flood-modal-val {
+  color: var(--danger);
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.flood-modal-color-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+}
+
+.flood-modal-color-wrap input[type="color"] {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+  flex-shrink: 0;
+}
+.flood-modal-color-wrap input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; border-radius: 4px; }
+.flood-modal-color-wrap input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
+
+.flood-modal-hex {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: monospace;
+  letter-spacing: 0.4px;
+}
+
+.flood-modal-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, rgba(251,113,133,0.2), var(--danger));
+  outline: none;
+  cursor: pointer;
+}
+.flood-modal-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--danger);
+  border: 2px solid var(--bg-base);
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(251,113,133,0.5);
+}
+
+.flood-modal-footer {
+  display: flex;
+  padding: 8px 12px;
+  border-top: 1px solid rgba(251, 113, 133, 0.15);
+  justify-content: flex-end;
+}
+
+.flood-modal-done {
+  padding: 5px 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(251, 113, 133, 0.35);
+  background: linear-gradient(135deg, rgba(251, 113, 133, 0.12), rgba(251, 113, 133, 0.06));
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.flood-modal-done:hover {
+  background: linear-gradient(135deg, rgba(251, 113, 133, 0.22), rgba(251, 113, 133, 0.12));
+  border-color: rgba(251, 113, 133, 0.55);
+  color: var(--danger-light);
+  box-shadow: 0 0 12px rgba(251, 113, 133, 0.12);
+}

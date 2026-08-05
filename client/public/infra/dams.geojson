@@ -1,0 +1,11 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "name": "Tarbela Dam (sample)", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [72.6970, 34.0917] } },
+    { "type": "Feature", "properties": { "name": "Mangla Dam (sample)", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [73.6428, 33.1450] } },
+    { "type": "Feature", "properties": { "name": "Warsak Dam (sample)", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [71.3667, 34.2333] } },
+    { "type": "Feature", "properties": { "name": "Chashma Barrage (sample)", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [71.3667, 32.4333] } },
+    { "type": "Feature", "properties": { "name": "Diamer-Bhasha Dam site (sample)", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [73.7333, 35.5167] } },
+    { "type": "Feature", "properties": { "name": "Ghazi-Barotha (sample)", "placeholder": true }, "geometry": { "type": "Point", "coordinates": [72.5000, 34.0500] } }
+  ]
+}

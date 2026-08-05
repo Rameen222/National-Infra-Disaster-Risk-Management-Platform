@@ -1,0 +1,732 @@
+/* ══════════════════════════════════════════════════════════
+   District Stats — docked panels (not a popup)
+   Right dock: building/structure detail — fixed to the viewport's right
+   edge, left of both sidebars so no overlap is possible.
+   Bottom dock (further down this file): demographic detail — portaled
+   into MapContainer's own box so it spans exactly the map's width and
+   can never overlap either sidebar.
+   ══════════════════════════════════════════════════════════ */
+.ds-dock-right {
+  position: fixed;
+  top: 102px; /* below the 50px header + 52px map toolbar, so it never covers the toolbar's own buttons */
+  right: 0;
+  bottom: 0;
+  z-index: 500;
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-base);
+  border-left: 1px solid var(--border-default);
+  box-shadow: var(--shadow-float);
+  overflow: hidden;
+}
+
+.ds-ph {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  min-height: 48px;
+  background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-base) 100%);
+  border-bottom: 1px solid var(--border-default);
+  flex-shrink: 0;
+  gap: 10px;
+  user-select: none;
+}
+.ds-ph--minimal {
+  justify-content: flex-end;
+  min-height: 40px;
+  background: transparent;
+  border-bottom: none;
+}
+
+/* ── Bottom dock: demographic detail. Rendered via portal into
+   #ds-dock-bottom-slot, which lives inside MapContainer's own box, so it
+   already can't overlap either sidebar on the left. `width: calc(100% -
+   380px)` stops it before the right dock too — the right dock only ever
+   renders alongside this bar (both come from the same district
+   selection), so the offset is always valid, not a guess. */
+.ds-dock-bottom {
+  width: calc(100% - 380px);
+  min-height: 148px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 24px;
+  background: var(--bg-base);
+  border-top: 1px solid var(--border-default);
+  border-right: 1px solid var(--border-default);
+  box-shadow: var(--shadow-float);
+  box-sizing: border-box;
+}
+
+.ds-dock-bottom-cards {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.ds-dock-bottom-cards > * { flex: 0 0 auto; min-width: 128px; }
+.ds-dock-bottom-cards .ds-pop-total { flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; min-width: 180px; }
+.ds-dock-bottom-cards .ds-gender-bars { min-width: 176px; }
+
+.ds-ph-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ds-badge {
+  display: inline-block;
+  background: var(--primary-muted);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: flex-start;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-pname {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.ds-ph-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.ds-close {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition);
+  padding: 0;
+}
+.ds-close:hover {
+  background: var(--danger-muted);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* When the close button joins the toolbar row instead of getting its own
+   header row, pin it to the right edge so it still reads as "close". */
+.ds-close--inline {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ── Action toolbar (Buildings / Encroachment) ────────── */
+.ds-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-default);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* ── Building count badge (tehsil buildings) ───────────────── */
+.ds-building-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4fc3f7;
+  background: rgba(79, 195, 247, 0.12);
+  border: 1px solid rgba(79, 195, 247, 0.35);
+  white-space: nowrap;
+}
+.ds-building-count--error {
+  color: var(--danger, #ef5350);
+  background: rgba(239, 83, 80, 0.12);
+  border-color: rgba(239, 83, 80, 0.35);
+}
+
+/* ── 3D Buildings button ───────────────────────────────── */
+.ds-buildings-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--warn-muted);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  cursor: pointer;
+  color: var(--warn);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+.ds-buildings-btn:hover {
+  background: rgba(251, 191, 36, 0.2);
+  border-color: var(--warn);
+  color: var(--warn-light);
+}
+.ds-buildings-btn--active {
+  background: var(--accent-muted);
+  border-color: rgba(52, 211, 153, 0.4);
+  color: var(--accent);
+}
+.ds-buildings-btn--active:hover {
+  background: var(--danger-muted);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.ds-buildings-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.ds-buildings-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-top-color: var(--warn);
+  border-radius: 50%;
+  animation: ds-spin 0.6s linear infinite;
+}
+@keyframes ds-spin { to { transform: rotate(360deg); } }
+
+/* ── Encroachment button ───────────────────────────────── */
+.ds-encroach-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  cursor: pointer;
+  color: #60a5fa;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+.ds-encroach-btn:hover {
+  background: rgba(96, 165, 250, 0.22);
+  border-color: #60a5fa;
+  color: #93c5fd;
+}
+
+.ds-3d-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--primary-glow);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  cursor: pointer;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+.ds-3d-btn:hover {
+  background: var(--primary-muted);
+  border-color: var(--primary);
+  color: var(--primary-light);
+}
+.ds-3d-btn--active {
+  background: var(--accent-muted);
+  border-color: rgba(52, 211, 153, 0.4);
+  color: var(--accent);
+}
+.ds-3d-btn--active:hover {
+  background: var(--danger-muted);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.ds-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px 14px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ds-scroll section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ds-sechead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Tinted heading bars so each infrastructure/population block reads as a
+   visually separate component. */
+.ds-sechead--construction,
+.ds-sechead--age {
+  color: #ffffff;
+  padding: 6px 10px;
+  border-bottom: none;
+  border-left: 3px solid var(--sh);
+  border-radius: var(--radius-sm);
+  background: var(--sh-bg);
+}
+.ds-sechead--construction { --sh: #4fc3f7; --sh-bg: rgba(79, 195, 247, 0.16); }
+.ds-sechead--age          { --sh: #ab47bc; --sh-bg: rgba(171, 71, 188, 0.16); }
+
+/* Bright, legible count on the tinted heading bars */
+.ds-sechead--construction .ds-sechead-right,
+.ds-sechead--age .ds-sechead-right {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.ds-sechead-icon { font-size: 15px; line-height: 1; }
+
+.ds-sechead-label { flex: 1; }
+
+.ds-sechead-right {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.ds-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.ds-kpi {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-top: 2px solid var(--a);
+  border-radius: var(--radius-md);
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+  transition: border-color var(--transition);
+}
+.ds-kpi:hover { border-color: rgba(255,255,255,0.08); }
+
+.ds-kpi-val {
+  font-size: 23px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-kpi-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ds-pop-total {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--gc);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ds-pop-total-val {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-pop-total-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Compact gender bar chart (bottom dock) ───────────────────
+   Deliberately not a full chart component — two thin progress bars so the
+   split reads at a glance without eating the bottom bar's height budget. */
+.ds-gender-bars {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ds-gbar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ds-gbar-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ds-gbar-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gc);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.ds-gbar-pct {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-gbar-track {
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.ds-gbar-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: var(--gc);
+  transition: width 0.5s ease;
+}
+
+.ds-gbar-value {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-chart-wrap {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 8px 4px 4px;
+  overflow: visible;
+}
+
+/* Recharts SVG can grow larger than the wrapper bounds for outer pie labels;
+   give it room to breathe instead of clipping. */
+.ds-chart-wrap .recharts-wrapper,
+.ds-chart-wrap .recharts-surface { overflow: visible; }
+.ds-chart-wrap .recharts-pie-label-text {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #ffffff;
+}
+
+.ds-road-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ds-road-card {
+  flex: 1;
+  min-width: 80px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-top: 2px solid var(--rc);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ds-road-val {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-road-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* Construction-type + structure-age cards (infrastructure CSV) */
+.ds-infra-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ds-infra-card {
+  flex: 1;
+  min-width: 84px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-top: 2px solid var(--ic);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: border-color var(--transition);
+}
+.ds-infra-card:hover { border-color: rgba(255, 255, 255, 0.06); }
+
+.ds-infra-val {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-infra-pct {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ic);
+  opacity: 0.92;
+}
+
+.ds-infra-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.ds-tt {
+  background: rgba(11, 17, 32, 0.97);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+.recharts-legend-item-text { color: var(--text-muted) !important; }
+
+.ds-subsec-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 2px 2px;
+}
+
+.ds-no-data {
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: center;
+  font-style: italic;
+}
+
+@keyframes ds-sec-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ds-sec-1 { animation: ds-sec-enter 0.25s ease both; animation-delay: 0.04s; }
+.ds-sec-2 { animation: ds-sec-enter 0.25s ease both; animation-delay: 0.10s; }
+.ds-sec-3 { animation: ds-sec-enter 0.25s ease both; animation-delay: 0.16s; }
+.ds-sec-4 { animation: ds-sec-enter 0.25s ease both; animation-delay: 0.22s; }
+
+/* ── Desilting Nullahs ─────────────────────────────────── */
+.ds-nullah-table-wrap {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.ds-nullah-table-wrap--nested {
+  margin-top: 8px;
+  border-color: rgba(56, 189, 248, 0.25);
+  background: rgba(56, 189, 248, 0.04);
+}
+
+.ds-nullah-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.ds-nullah-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-surface);
+  color: var(--text-dim);
+  font-weight: 700;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 7px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-default);
+}
+.ds-nullah-table tbody tr {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background var(--transition);
+}
+.ds-nullah-table tbody tr:last-child { border-bottom: none; }
+.ds-nullah-table tbody tr:hover { background: rgba(255, 255, 255, 0.025); }
+.ds-nullah-table td {
+  padding: 6px 10px;
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+.ds-nullah-idx {
+  color: var(--text-dim);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.ds-nullah-name {
+  color: var(--text-primary);
+  font-weight: 500;
+  word-break: break-word;
+}
+.ds-nullah-fam {
+  text-align: right;
+  font-weight: 700;
+  color: #4fc3f7;
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-nullah-unmatched { margin-top: 6px; }
+
+.ds-unmatched-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ds-unmatched-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-left: 2px solid #ffb74d;
+  border-radius: var(--radius-sm);
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.ds-unmatched-chip:hover {
+  background: rgba(255, 183, 77, 0.08);
+  border-color: #ffb74d;
+  color: var(--text-primary);
+}
+.ds-unmatched-chip--active {
+  background: rgba(255, 183, 77, 0.14);
+  border-color: #ffb74d;
+  color: var(--text-primary);
+}
+.ds-unmatched-count {
+  background: rgba(255, 183, 77, 0.18);
+  color: #ffb74d;
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-unmatched-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 12px;
+}
+.ds-unmatched-head-name {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.ds-unmatched-head-meta {
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+
