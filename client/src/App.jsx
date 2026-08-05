@@ -632,6 +632,7 @@ function App() {
             // fetch effect to re-run and reload the cached GeoJSON layers.
             setEncroachReloadKey((k) => k + 1);
           }}
+          onBuildingFocus={(feature) => setMapFocusFeatures([feature])}
         />
       )}
 

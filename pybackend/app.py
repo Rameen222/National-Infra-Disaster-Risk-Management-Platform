@@ -807,6 +807,46 @@ def _ensure_buildings_shp(district):
     return path
 
 
+def _assign_building_id(gdf, key):
+    """Attach a stable `bldg_id` column for the attribute-table / click-to-zoom
+    UI. Prefers an existing unique identifier already on the source shapefile
+    (e.g. the Google Open Buildings Plus Code in the `id` column); falls back
+    to a synthetic `<district-key>-<row-index>` id when no such column exists
+    or its values aren't unique, so every building still gets a stable id."""
+    id_col = None
+    for c in gdf.columns:
+        if c.lower() in ("id", "objectid", "fid", "gid", "bldg_id"):
+            id_col = c
+            break
+    gdf = gdf.reset_index(drop=True)
+    if id_col is not None and gdf[id_col].notna().all() and gdf[id_col].is_unique:
+        gdf["bldg_id"] = gdf[id_col].astype(str)
+    else:
+        gdf["bldg_id"] = [f"{key}-{i}" for i in gdf.index]
+    return gdf
+
+
+def _attach_centroids(gdf):
+    """Add `centroid_lat` / `centroid_lon` columns (WGS84 degrees) so each
+    feature can be listed in an attribute table and zoomed to individually.
+
+    Centroids are computed in a metric (UTM) CRS — not directly on geographic
+    degree coordinates — then reprojected back to EPSG:4326, matching how the
+    rest of this pipeline computes area (see `estimate_utm_crs()` above)."""
+    try:
+        metric_crs = gdf.estimate_utm_crs()
+        centroid_metric = gdf.to_crs(metric_crs).geometry.centroid
+        centroid_metric = centroid_metric.set_crs(metric_crs, allow_override=True)
+        centroids = centroid_metric.to_crs("EPSG:4326")
+    except Exception:
+        # Fallback: approximate centroid directly on the source geometry.
+        centroids = gdf.geometry.centroid
+    gdf = gdf.copy()
+    gdf["centroid_lat"] = centroids.y.round(6)
+    gdf["centroid_lon"] = centroids.x.round(6)
+    return gdf
+
+
 def _encroachment_worker(district):
     """Background thread for the encroachment count.
 
@@ -872,6 +912,7 @@ def _encroachment_worker(district):
             _encroachment[key]["progress"] = 60
 
         buildings_gdf = gpd.read_file(shp_file)
+        buildings_gdf = _assign_building_id(buildings_gdf, key)
         total_buildings = int(len(buildings_gdf))
         with _encroachment_lock:
             _encroachment[key]["progress"] = 70
@@ -909,6 +950,9 @@ def _encroachment_worker(district):
             cols_to_drop = [c for c in encroached_gdf.columns if c.startswith("index_right")]
             if cols_to_drop:
                 encroached_gdf = encroached_gdf.drop(columns=cols_to_drop)
+            # bldg_id + centroid_lat/lon power the attribute-table UI (row per
+            # building, click a row to zoom the map to that building).
+            encroached_gdf = _attach_centroids(encroached_gdf)
             _write_geojson(encroached_gdf, encroached_path)
         else:
             # Write an empty FeatureCollection so the frontend can fetch successfully

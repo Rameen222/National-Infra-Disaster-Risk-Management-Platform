@@ -509,6 +509,106 @@
   color: #94a3b8;
 }
 
+/* ── Attribute table (per-building id / lat / long) ─────── */
+.enc-table-section {
+  margin-top: 9px;
+}
+
+.enc-table-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.enc-table-toggle:hover {
+  background: rgba(167, 139, 250, 0.12);
+  border-color: rgba(167, 139, 250, 0.35);
+  color: #e2e8f0;
+}
+
+.enc-table-chevron {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  color: #94a3b8;
+}
+.enc-table-chevron--open { transform: rotate(180deg); }
+
+.enc-table-wrap {
+  margin-top: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.enc-table-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+.enc-table-status--error { color: #fca5a5; }
+
+.enc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.enc-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgba(20, 28, 44, 0.98);
+  color: #94a3b8;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.enc-table tbody td {
+  padding: 5px 8px;
+  color: #e2e8f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+}
+
+.enc-table-id {
+  color: #c4b5fd;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+}
+
+.enc-table-row {
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.enc-table-row:hover { background: rgba(96, 165, 250, 0.10); }
+.enc-table-row--selected {
+  background: rgba(244, 114, 182, 0.14);
+}
+.enc-table-row--selected td:first-child {
+  box-shadow: inset 3px 0 0 #f472b6;
+}
+
 .enc-foot {
   margin-top: 10px;
   font-size: 10px;

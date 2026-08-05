@@ -24,7 +24,7 @@ function formatArea(sqm) {
 const SEARCH_MIN_MS = 600;
 const FOUND_FLASH_MS = 700;
 
-export default function EncroachmentModal({ district, onClose, onResultReady }) {
+export default function EncroachmentModal({ district, onClose, onResultReady, onBuildingFocus }) {
   // searching → found → done   (cached path)
   // searching → processing → done   (cold path)
   // … → error on failure
@@ -39,6 +39,13 @@ export default function EncroachmentModal({ district, onClose, onResultReady }) 
   const [highSusStatus, setHighSusStatus] = useState('idle');
   const [highSusData, setHighSusData] = useState(null);
   const [highSusProgress, setHighSusProgress] = useState(0);
+  // Attribute table of the individual encroached buildings — fetched lazily
+  // (only once the user asks to see it) since the stats above already cover
+  // the common case. 'idle' | 'loading' | 'done' | 'error'
+  const [tableStatus, setTableStatus] = useState('idle');
+  const [tableOpen, setTableOpen] = useState(false);
+  const [buildings, setBuildings] = useState([]);
+  const [selectedBldgId, setSelectedBldgId] = useState(null);
   const pollRef = useRef(null);
   const hsPollRef = useRef(null);
   // Track every setTimeout we schedule so unmount / re-run can cancel them.
@@ -90,6 +97,10 @@ export default function EncroachmentModal({ district, onClose, onResultReady }) 
     setHighSusStatus('idle');
     setHighSusData(null);
     setHighSusProgress(0);
+    setTableStatus('idle');
+    setTableOpen(false);
+    setBuildings([]);
+    setSelectedBldgId(null);
     const startedAt = Date.now();
 
     // Resolve the high-susceptibility count. If the main result already carries
@@ -219,6 +230,46 @@ export default function EncroachmentModal({ district, onClose, onResultReady }) 
         setStatus('error');
         setError(err.message);
       });
+  };
+
+  // Attribute table of individual encroached buildings — reuses the same
+  // GeoJSON endpoint the map already fetches, fetched lazily on first
+  // expand. Each row carries the building's stable id + centroid lat/lon
+  // computed by the backend (see _assign_building_id / _attach_centroids).
+  const loadBuildingsTable = () => {
+    if (!district) return;
+    setTableStatus('loading');
+    fetch(`/pyapi/buildings/encroachment/geojson?district=${encodeURIComponent(district)}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`Server error ${r.status}`))))
+      .then((geojson) => {
+        if (!liveRef.current) return;
+        const rows = (geojson.features || []).map((f, i) => ({
+          key: f.properties?.bldg_id || `row-${i}`,
+          bldgId: f.properties?.bldg_id ?? '—',
+          lat: f.properties?.centroid_lat,
+          lon: f.properties?.centroid_lon,
+          geometry: f.geometry,
+        }));
+        setBuildings(rows);
+        setTableStatus('done');
+      })
+      .catch(() => {
+        if (!liveRef.current) return;
+        setTableStatus('error');
+      });
+  };
+
+  const handleToggleTable = () => {
+    setTableOpen((open) => {
+      const next = !open;
+      if (next && tableStatus === 'idle') loadBuildingsTable();
+      return next;
+    });
+  };
+
+  const handleRowClick = (b) => {
+    setSelectedBldgId(b.bldgId);
+    if (b.geometry) onBuildingFocus?.({ geometry: b.geometry });
   };
 
   useEffect(() => {
@@ -490,6 +541,71 @@ export default function EncroachmentModal({ district, onClose, onResultReady }) 
                 <span className="enc-area-val enc-area-val--sub">{formatArea(areaSqm)}</span>
               </div>
             </div>
+
+            {inZone > 0 && (
+              <div className="enc-table-section">
+                <button
+                  type="button"
+                  className="enc-table-toggle"
+                  onClick={handleToggleTable}
+                  aria-expanded={tableOpen}
+                >
+                  <span>{tableOpen ? 'Hide' : 'Show'} building details ({formatCount(inZone)})</span>
+                  <svg
+                    className={`enc-table-chevron${tableOpen ? ' enc-table-chevron--open' : ''}`}
+                    width="10" height="10" viewBox="0 0 10 10" fill="none"
+                  >
+                    <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+
+                {tableOpen && (
+                  <div className="enc-table-wrap">
+                    {tableStatus === 'loading' && (
+                      <div className="enc-table-status">
+                        <span className="enc-step-spin" /> Loading buildings…
+                      </div>
+                    )}
+                    {tableStatus === 'error' && (
+                      <div className="enc-table-status enc-table-status--error">
+                        Failed to load building list.
+                      </div>
+                    )}
+                    {tableStatus === 'done' && (
+                      buildings.length === 0 ? (
+                        <div className="enc-table-status">No building details available.</div>
+                      ) : (
+                        <table className="enc-table">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Building ID</th>
+                              <th>Lat</th>
+                              <th>Long</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {buildings.map((b, i) => (
+                              <tr
+                                key={b.key}
+                                className={`enc-table-row${selectedBldgId === b.bldgId ? ' enc-table-row--selected' : ''}`}
+                                onClick={() => handleRowClick(b)}
+                                title="Click to zoom to this building"
+                              >
+                                <td>{i + 1}</td>
+                                <td className="enc-table-id">{b.bldgId}</td>
+                                <td>{b.lat != null ? b.lat.toFixed(6) : '—'}</td>
+                                <td>{b.lon != null ? b.lon.toFixed(6) : '—'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="enc-foot">
               Buildings highlighted in red on the map. Results cached on disk
