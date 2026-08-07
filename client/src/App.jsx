@@ -25,7 +25,7 @@ import { loadBuildingIndex, findBuildingEntry } from './utils/buildingData';
 import { loadNullahsCSV, matchNullahDistricts } from './utils/nullahsData';
 import { loadInfrastructureCSV, findInfrastructure } from './utils/infrastructureData';
 import { loadTehsilHousingCSV, findTehsil } from './utils/tehsilData';
-import { loadTehsilHazardCSV } from './utils/tehsilHazardData';
+import { loadTehsilHazardCSV, findTehsilHazard } from './utils/tehsilHazardData';
 import { findDistrictForGeometry } from './utils/geometry';
 import { INFRA_LAYERS } from './config/infraLayers';
 import './App.css';
@@ -64,6 +64,14 @@ function App() {
   // Per-tehsil prominent hazards + terrain/demography notes, shown in the
   // second sidebar only while a specific tehsil is active.
   const [tehsilHazardIndex, setTehsilHazardIndex] = React.useState(null);
+  // Tehsil currently selected/analyzed anywhere (left sidebar, map click, or
+  // the right dock's tehsil list). Drives the tehsil-specific hazard profile
+  // pinned at the bottom of the right dock.
+  const [selectedTehsil, setSelectedTehsil] = React.useState(null);
+  // Tehsil the user has drilled into in the second sidebar (DistrictTehsilSidebar).
+  // Lifted here so a tehsil clicked on the map also lights up its row in that
+  // sidebar (and vice-versa). null = no active tehsil.
+  const [activeTehsilName, setActiveTehsilName] = React.useState(null);
   // Tehsil polygon the user clicked, to auto-analyze inside the district modal's
   // tehsils section: { district, name } | null
   const [pendingTehsil, setPendingTehsil] = React.useState(null);
@@ -358,6 +366,12 @@ function App() {
     if (!districtName) return;
     setPendingTehsil({ district: districtName, name });
     handleDistrictSelect(districtName);
+    setSelectedTehsil(name);
+    setActiveTehsilName(name);
+    // Fit the camera to the tehsil itself — the same zoom the second sidebar's
+    // drill-in performs (onMapFocus). Without this, a tehsil clicked straight
+    // on the map only ever gets the district-level fit, not the tehsil-level one.
+    if (geometry) setMapFocusFeatures([{ geometry }]);
   };
 
   // Per-district construction-type / structure-age counts, matched (fuzzy) to
@@ -405,6 +419,8 @@ function App() {
     setIsNationalView(true);
     setSelectedProvince(null);
     setSelectedDistrict(null);
+    setSelectedTehsil(null);
+    setActiveTehsilName(null);
     setStatsModalData(null);
     setStatsModalProvince(null);
     setShowDistrictStats(false);
@@ -420,6 +436,8 @@ function App() {
     setIsNationalView(false);
     setSelectedProvince(provinceId);
     setSelectedDistrict(null);
+    setSelectedTehsil(null);
+    setActiveTehsilName(null);
     setStatsModalData(null);
     setStatsModalProvince(null);
     setShowDistrictStats(false);
@@ -432,6 +450,8 @@ function App() {
 
   const handleDistrictSelect = (districtName) => {
     setSelectedDistrict(districtName);
+    setSelectedTehsil(null);
+    setActiveTehsilName(null);
     // Turn off buildings when switching districts
     if (activeBuildingDistrict && activeBuildingDistrict.districtKey.toLowerCase() !== districtName.toLowerCase()) {
       setActiveBuildingDistrict(null);
@@ -479,6 +499,14 @@ function App() {
     handleDistrictSelect(pendingDistrict.name);
     setPendingDistrict(null);
   }, [selectedProvince, pendingDistrict]);
+
+  // Hazard/terrain profile for the tehsil currently selected anywhere in the
+  // app (map click, left sidebar, or right-dock tehsil list). Rendered at the
+  // bottom of the right dock by DistrictStatsModal.
+  const tehsilHazardProfile = React.useMemo(() => {
+    if (!selectedTehsil) return null;
+    return findTehsilHazard(tehsilHazardIndex, selectedTehsil, selectedDistrict);
+  }, [selectedTehsil, selectedDistrict, tehsilHazardIndex]);
 
   const handleToggleDistrictBuildings = (districtName) => {
     // If already showing buildings for this district, turn off
@@ -554,10 +582,13 @@ function App() {
             onDistrictSelect={handleDistrictSelect}
             onTehsilSelect={handleTehsilSelect}
             onMapFocus={setMapFocusFeatures}
-            tehsilHazardIndex={tehsilHazardIndex}
+            activeTehsilName={activeTehsilName}
+            onActiveTehsilChange={setActiveTehsilName}
             onBackToDistricts={() => {
               setSelectedDistrict(null);
               setShowDistrictStats(false);
+              setSelectedTehsil(null);
+              setActiveTehsilName(null);
               setTehsilBuildingsGeoJSON(null);
               setTehsilScenarioClipGeoJSON(null);
               setPendingTehsil(null);
@@ -598,7 +629,7 @@ function App() {
         <DistrictStatsModal
           data={statsModalData}
           province={statsModalProvince}
-          onClose={() => { setShowDistrictStats(false); setTehsilBuildingsGeoJSON(null); setTehsilScenarioClipGeoJSON(null); setPendingTehsil(null); }}
+          onClose={() => { setShowDistrictStats(false); setSelectedTehsil(null); setActiveTehsilName(null); setTehsilBuildingsGeoJSON(null); setTehsilScenarioClipGeoJSON(null); setPendingTehsil(null); }}
           hasBuildingData={!!findBuildingEntry(buildingIndex, statsModalData?.name)}
           onToggleBuildings={() => handleToggleDistrictBuildings(statsModalData?.name)}
           buildingsActive={showBuildings && activeBuildingDistrict?.districtKey?.toLowerCase() === statsModalData?.name?.toLowerCase()}
@@ -607,6 +638,8 @@ function App() {
           nullahsForDistrict={statsModalProvince === 'AJK' ? nullahsForAJK?.matchedByCanonical?.get(statsModalData?.name) : null}
           unmatchedNullahDistricts={statsModalProvince === 'AJK' ? nullahsForAJK?.unmatchedEntries : null}
           infrastructure={infraForDistrict}
+          activeTehsil={selectedTehsil}
+          hazardProfile={tehsilHazardProfile}
           tehsilsSection={selectedDistrictGeometry && (
             <TehsilBuildingsPanel
               key={`tb-${statsModalProvince}-${statsModalData?.name}`}
@@ -616,6 +649,7 @@ function App() {
               initialTehsil={pendingTehsil?.district === statsModalData?.name ? pendingTehsil?.name : undefined}
               onBuildingsGeoJSON={setTehsilBuildingsGeoJSON}
               onScenarioClipGeoJSON={setTehsilScenarioClipGeoJSON}
+              onTehsilActive={setSelectedTehsil}
             />
           )}
         />

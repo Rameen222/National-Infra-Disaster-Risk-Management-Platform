@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { PROVINCES } from '../../config/mapConfig';
 import { loadDistrictTehsils } from '../../utils/districtTehsils';
-import { findTehsilHazard } from '../../utils/tehsilHazardData';
 import '../TehsilBuildings/TehsilBuildingsModal.css';
 import './Sidebar.css';
 import './DistrictTehsilSidebar.css';
@@ -15,16 +14,15 @@ import './DistrictTehsilSidebar.css';
  * App.handleTehsilSelect flow verbatim — no new selection logic, only a
  * new place for the same lists to render.
  */
-function DistrictTehsilSidebar({ selectedProvince, selectedDistrict, districtsGeoJSON, onDistrictSelect, onTehsilSelect, onMapFocus, onBackToDistricts, tehsilHazardIndex }) {
+function DistrictTehsilSidebar({ selectedProvince, selectedDistrict, districtsGeoJSON, onDistrictSelect, onTehsilSelect, onMapFocus, onBackToDistricts, activeTehsilName, onActiveTehsilChange }) {
   const [collapsed, setCollapsed] = useState(false);
   const [districtQuery, setDistrictQuery] = useState('');
   const [tehsils, setTehsils] = useState(null);
   const [tehsilError, setTehsilError] = useState(null);
-  // Which tehsil (if any) the user has zoomed into from this panel — a
-  // third navigational depth on top of district/province, purely local to
-  // this sidebar's back-button behavior (the right dock's own "active
-  // tehsil" for building counts is separate state in TehsilBuildingsPanel).
-  const [activeTehsilName, setActiveTehsilName] = useState(null);
+  // The active tehsil only marks a row in the list (so a tehsil clicked on the
+  // map is highlighted here too) — it never adds an extra navigation depth.
+  // Held in App state (activeTehsilName) to keep the map click + this list in
+  // sync.
 
   const province = useMemo(
     () => PROVINCES.find((p) => p.id === selectedProvince) || null,
@@ -60,13 +58,8 @@ function DistrictTehsilSidebar({ selectedProvince, selectedDistrict, districtsGe
     return f?.geometry || null;
   }, [selectedDistrict, districtsGeoJSON]);
 
-  // Hazard/terrain profile for the active tehsil only — the panel never
-  // shows this for a district or province, per spec.
-  const hazardProfile = useMemo(() => {
-    if (!activeTehsilName || !tehsilHazardIndex) return null;
-    return findTehsilHazard(tehsilHazardIndex, activeTehsilName, selectedDistrict);
-  }, [activeTehsilName, selectedDistrict, tehsilHazardIndex]);
-
+  // Load the district's tehsils — the hazard profile for the active tehsil
+  // renders pinned at the bottom of the right dock (DistrictStatsModal), not here.
   useEffect(() => {
     if (!selectedDistrict || !districtGeometry) {
       setTehsils(null);
@@ -82,40 +75,35 @@ function DistrictTehsilSidebar({ selectedProvince, selectedDistrict, districtsGe
     return () => { cancelled = true; };
   }, [selectedProvince, selectedDistrict, districtGeometry]);
 
-  // Re-open (and clear any district search / active tehsil) whenever the
-  // province or district selection changes, so switching context never
-  // leaves the panel collapsed or showing stale state.
+  // Re-open (and clear any district search) whenever the province or district
+  // selection changes, so switching context never leaves the panel collapsed or
+  // showing stale search text. The active tehsil is reset by App's own handlers
+  // (handleDistrictSelect / handleProvinceSelect / handleTehsilSelect), which
+  // know the full ordering — resetting it here would race a map-click that
+  // selects a tehsil in a newly-chosen district.
   useEffect(() => {
     setCollapsed(false);
     setDistrictQuery('');
-    setActiveTehsilName(null);
   }, [selectedProvince, selectedDistrict]);
 
   const handleTehsilRowClick = (t) => {
-    setActiveTehsilName(t.name);
+    onActiveTehsilChange?.(t.name);
     onTehsilSelect?.({ name: t.name }, t.geometry);
     if (t.geometry) onMapFocus?.([{ geometry: t.geometry }]);
   };
 
-  // Back button, tehsil depth -> district (re-fit to the district, keep
-  // the tehsil list open) or district depth -> province (re-fit to the
-  // whole province, return to the district list). The map effects that
-  // fire on selectedDistrict/selectedProvince *changing* don't apply here
-  // since neither value changes on the way back up — onMapFocus is the
-  // explicit re-fit channel for that.
+  // Back button — one level only: back to the province's district list. The
+  // map effects that fire on selectedDistrict/selectedProvince *changing*
+  // don't apply here since neither value changes on the way back up — onMapFocus
+  // is the explicit re-fit channel for that.
   const handleBack = () => {
-    if (activeTehsilName) {
-      setActiveTehsilName(null);
-      if (districtGeometry) onMapFocus?.([{ geometry: districtGeometry }]);
-      return;
-    }
     onBackToDistricts?.();
     // Spread into a fresh array — districtFeaturesForProvince is memoized,
     // so passing it directly would be the *same* reference as last time
-    // this branch ran, and App.jsx's setMapFocusFeatures(sameRef) is then
-    // a no-op React bails on, silently skipping the re-fit on a repeat
-    // "back to province" click (e.g. district -> province -> district ->
-    // province again). A new array is always seen as a change.
+    // this ran, and App.jsx's setMapFocusFeatures(sameRef) is then a no-op
+    // React bails on, silently skipping the re-fit on a repeat "back to
+    // province" click (e.g. district -> province -> district -> province
+    // again). A new array is always seen as a change.
     if (districtFeaturesForProvince.length) onMapFocus?.([...districtFeaturesForProvince]);
   };
 
@@ -150,18 +138,18 @@ function DistrictTehsilSidebar({ selectedProvince, selectedDistrict, districtsGe
             <button
               className="tehsil-sidebar-back"
               onClick={handleBack}
-              title={activeTehsilName ? `Back to ${selectedDistrict}` : `Back to ${province.name} districts`}
+              title={`Back to ${province.name} districts`}
             >
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                 <path d="M6.5 1.5L2.5 5l4 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Back to {activeTehsilName ? selectedDistrict : province.name}
+              Back to {province.name}
             </button>
           ) : (
             <span className="tehsil-sidebar-eyebrow">Districts</span>
           )}
           <span className="tehsil-sidebar-district">
-            {mode === 'tehsils' ? (activeTehsilName || selectedDistrict) : province.name}
+            {mode === 'tehsils' ? `${selectedDistrict} District` : province.name}
           </span>
         </div>
       </div>
@@ -196,44 +184,28 @@ function DistrictTehsilSidebar({ selectedProvince, selectedDistrict, districtsGe
           </div>
         </>
       ) : (
-        <div className="tb-list tehsil-sidebar-list">
-          {tehsils == null && !tehsilError && (
-            <div className="tb-loading"><span className="tb-spin" /> Loading tehsils…</div>
-          )}
-          {tehsilError && <div className="tb-error">Couldn’t load tehsils: {tehsilError}</div>}
-          {tehsils && tehsils.length === 0 && (
-            <div className="tb-error">No tehsils found for this district.</div>
-          )}
-          {tehsils && tehsils.map((t) => (
-            <button
-              key={t.name}
-              className={`tb-row${activeTehsilName === t.name ? ' tb-row--active' : ''}`}
-              onClick={() => handleTehsilRowClick(t)}
-              title="Select this tehsil"
-            >
-              <span className="tb-row-name">{t.name}</span>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Hazard/terrain profile — only while a specific tehsil is active. */}
-      {activeTehsilName && hazardProfile && (hazardProfile.hazards || hazardProfile.terrain) && (
-        <div className="tehsil-hazard-card">
-          <div className="tehsil-hazard-eyebrow">Hazard Profile</div>
-          {hazardProfile.hazards && (
-            <div className="tehsil-hazard-row">
-              <span className="tehsil-hazard-label">Prominent Hazards</span>
-              <span className="tehsil-hazard-value">{hazardProfile.hazards}</span>
-            </div>
-          )}
-          {hazardProfile.terrain && (
-            <div className="tehsil-hazard-row">
-              <span className="tehsil-hazard-label">Terrain &amp; Demography</span>
-              <span className="tehsil-hazard-value">{hazardProfile.terrain}</span>
-            </div>
-          )}
-        </div>
+        <>
+          <div className="tehsil-sidebar-subheading">Tehsil:</div>
+          <div className="tb-list tehsil-sidebar-list">
+            {tehsils == null && !tehsilError && (
+              <div className="tb-loading"><span className="tb-spin" /> Loading tehsils…</div>
+            )}
+            {tehsilError && <div className="tb-error">Couldn’t load tehsils: {tehsilError}</div>}
+            {tehsils && tehsils.length === 0 && (
+              <div className="tb-error">No tehsils found for this district.</div>
+            )}
+            {tehsils && tehsils.map((t) => (
+              <button
+                key={t.name}
+                className={`tb-row${activeTehsilName === t.name ? ' tb-row--active' : ''}`}
+                onClick={() => handleTehsilRowClick(t)}
+                title="Select this tehsil"
+              >
+                <span className="tb-row-name">{t.name}</span>
+              </button>
+            ))}
+          </div>
+        </>
       )}
     </aside>
   );

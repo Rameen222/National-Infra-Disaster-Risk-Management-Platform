@@ -77,7 +77,7 @@ const clipFor = (id) => (LOCAL_IDS.has(id) ? Promise.resolve(null) : loadFootpri
  * the buildings-inside-scenario count with a show/hide toggle for the map.
  * All results are cached on the backend (disk) and memoised in localStorage.
  */
-export default function TehsilBuildingsPanel({ province, district, districtGeometry, initialTehsil, onBuildingsGeoJSON, onScenarioClipGeoJSON }) {
+export default function TehsilBuildingsPanel({ province, district, districtGeometry, initialTehsil, onBuildingsGeoJSON, onScenarioClipGeoJSON, onTehsilActive }) {
   const [tehsils, setTehsils] = useState(null);   // [{ name, geometry }] | null while loading
   const [listError, setListError] = useState(null);
   const [counts, setCounts] = useState({});       // name → { status, count, key, progress }
@@ -135,6 +135,7 @@ export default function TehsilBuildingsPanel({ province, district, districtGeome
   const analyze = useCallback((tehsil, { force = false } = {}) => {
     const name = tehsil.name;
     setActive(name);
+    onTehsilActive?.(name);
     // Showing a tehsil's total buildings takes over the overlays.
     setScenarioShown(false);
     setClipShown(false);
@@ -188,7 +189,7 @@ export default function TehsilBuildingsPanel({ province, district, districtGeome
         pollsRef.current[name] = setTimeout(poll, 800);
       })
       .catch((err) => liveRef.current && setCount(name, { status: 'error', error: err.message }));
-  }, [counts, province, district, onBuildingsGeoJSON, onScenarioClipGeoJSON]);
+  }, [counts, province, district, onBuildingsGeoJSON, onScenarioClipGeoJSON, onTehsilActive]);
 
   // Auto-analyze the clicked tehsil once the list loads / when it changes.
   const lastAutoRef = useRef(null);

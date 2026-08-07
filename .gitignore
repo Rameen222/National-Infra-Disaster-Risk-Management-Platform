@@ -48,6 +48,8 @@ client/public/scenario_outputs/
 client/public/floodextent/
 client/public/flood/
 client/public/pakistan_districts.geojson
+# Full road network is 651MB — over GitHub's hard limit, keep local-only.
+client/public/infra/roads.geojson
 
 # Claude session data
 .claude/

@@ -66,9 +66,10 @@
   color: #f0f9ff;
   line-height: 1.2;
   max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .tehsil-sidebar-collapse {
@@ -101,48 +102,17 @@
   padding: 6px 8px;
 }
 
-/* ── Hazard/terrain profile — only rendered while a tehsil is active ──── */
-.tehsil-hazard-card {
+/* Subheading above the tehsil list in the district-tehsil mode of sidebar 2 —
+   "Tehsil:" — a quiet uppercase label that anchors the list below the district
+   title. */
+.tehsil-sidebar-subheading {
   flex-shrink: 0;
-  max-height: 46%;
-  overflow-y: auto;
-  margin: 0 8px 10px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: rgba(240, 180, 41, 0.06);
-  border: 1px solid rgba(240, 180, 41, 0.25);
-  border-top: 2px solid var(--warn, #F0B429);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.tehsil-hazard-eyebrow {
-  font-size: 10px;
+  padding: 10px 12px 2px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--warn, #F0B429);
-}
-
-.tehsil-hazard-row {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.tehsil-hazard-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.tehsil-hazard-value {
-  font-size: 12.5px;
-  line-height: 1.45;
-  color: var(--text-primary);
+  color: #7dd3fc;
 }
 
 /* ── Collapsed state — a slim bookmark tab ───────────────── */
