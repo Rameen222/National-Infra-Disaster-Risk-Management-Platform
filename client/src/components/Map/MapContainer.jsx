@@ -133,7 +133,10 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
   // per country/province/district) so features are interactive (hover tooltip).
   const [showCountryTehsils, setShowCountryTehsils] = useState(false);
   const [showProvinceTehsils, setShowProvinceTehsils] = useState(false);
-  const [showDistrictTehsils, setShowDistrictTehsils] = useState(false);
+  // District tehsils default ON so the moment a district is selected its
+  // tehsil names and boundaries are visible (and clickable) without the user
+  // opening the Tehsils panel first.
+  const [showDistrictTehsils, setShowDistrictTehsils] = useState(true);
   const [tehsilsPanelOpen, setTehsilsPanelOpen] = useState(false);
   const [tehsilsLoading, setTehsilsLoading] = useState(false);
   // key ('country'|'province'|'district') → error message, so a failed WFS
@@ -460,8 +463,10 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
       map.setPaintProperty('pakistan-districts-line', 'line-width', style.strokeWidth);
     }
     if (map.getLayer('pakistan-districts-labels')) {
+      // While a district's tehsils are focused the district's own name label is
+      // suppressed (the tehsil labels replace it) — even here.
       map.setLayoutProperty('pakistan-districts-labels', 'visibility',
-        (style.visible && selectedProvince && showDistrictLabels) ? 'visible' : 'none');
+        (style.visible && selectedProvince && showDistrictLabels && !(showDistrictTehsils && selectedDistrict)) ? 'visible' : 'none');
     }
   };
 
@@ -544,7 +549,11 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
   // Hospitals, Schools, Dams, …) from config/infraLayers.js. Hidden by
   // default; visibility/order is applied by the effect below, mirroring
   // loadFloodLayers/the flood visibility effect exactly.
+  const iconAvailable = (map, name) => map.hasImage(name);
+
   const loadInfraLayers = (map) => {
+    const getFallbackIcon = (name) => iconAvailable(map, name) ? name : 'marker-15';
+
     INFRA_LAYERS.forEach((layer) => {
       const srcId = `infra-${layer.id}-src`;
       if (map.getSource(srcId)) return;
@@ -574,6 +583,23 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
             'circle-opacity': layer.style.circleOpacity,
             'circle-stroke-color': '#0b0f0e',
             'circle-stroke-width': 1,
+          },
+        });
+      } else if (layer.type === 'symbol') {
+        map.addLayer({
+          id: `infra-${layer.id}-symbol`,
+          type: 'symbol',
+          source: srcId,
+          layout: {
+            visibility: 'none',
+            'icon-image': getFallbackIcon(layer.style.iconImage),
+            'icon-size': layer.style.iconSize ?? 1.1,
+            'icon-allow-overlap': true,
+            'icon-ignore-placement': true,
+          },
+          paint: {
+            'icon-color': layer.style.iconColor,
+            'icon-opacity': layer.style.iconOpacity ?? 1,
           },
         });
       } else if (layer.type === 'fill') {
@@ -688,9 +714,10 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     ['enc-river-fill', 'enc-river-line', 'enc-buildings-fill', 'enc-buildings-line', 'enc-buildings-3d'].forEach((id) => {
       if (map.getLayer(id)) map.moveLayer(id);
     });
+    // Ensure any optional infra overlays stay above the building layers.
+    moveInfraAboveBuildings(map);
 
     // Zoom to district; fitBounds decides the final zoom so the initial 2D/3D
-    // choice above may be overridden by the zoom handler on the next moveend
     if (districtsGeoJSON) {
       const feat = districtsGeoJSON.features.find(
         (f) => f.properties.name?.toLowerCase() === districtKey.toLowerCase()
@@ -1715,7 +1742,10 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
       map.setLayoutProperty('pakistan-districts-fill', 'visibility', 'visible');
       map.setLayoutProperty('pakistan-districts-line', 'visibility', 'visible');
       if (map.getLayer('pakistan-districts-labels')) {
-        map.setLayoutProperty('pakistan-districts-labels', 'visibility', showDistrictLabels ? 'visible' : 'none');
+        // The tehsil name labels are now on the map — drop the district's own
+        // name label so it doesn't sit on top of (or duplicate) them. The
+        // district is still identifiable by its gold highlight + boundary.
+        map.setLayoutProperty('pakistan-districts-labels', 'visibility', 'none');
       }
     } else {
       map.setLayoutProperty('pakistan-districts-fill', 'visibility', 'none');
@@ -1861,6 +1891,17 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     });
   }, [floodLayers, mapLoaded]);
 
+  const moveInfraAboveBuildings = (map) => {
+    INFRA_LAYERS.forEach((layer) => {
+      const ids = layer.type === 'fill'
+        ? [`infra-${layer.id}-fill`, `infra-${layer.id}-line`]
+        : [`infra-${layer.id}-${layer.type}`];
+      ids.forEach((id) => {
+        if (map.getLayer(id)) map.moveLayer(id);
+      });
+    });
+  };
+
   // Apply infrastructure overlay visibility (Rivers, Roads, Hospitals,
   // Schools, Dams, …) — same pattern as the flood layer visibility effect
   // above, just toggling visibility since these layers aren't user-styled.
@@ -1873,7 +1914,11 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
       const ids = layer.type === 'fill'
         ? [`infra-${layer.id}-fill`, `infra-${layer.id}-line`]
         : [`infra-${layer.id}-${layer.type}`];
-      ids.forEach((id) => { if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', vis); });
+      ids.forEach((id) => {
+        if (!map.getLayer(id)) return;
+        map.setLayoutProperty(id, 'visibility', vis);
+        if (vis === 'visible') map.moveLayer(id);
+      });
     });
   }, [infraLayers, mapLoaded]);
 

@@ -35,7 +35,7 @@ function NoData({ message }) {
 // structure detail, and a bottom bar for demographic detail. Same data,
 // same computations, same props as before — only where each piece renders
 // has changed.
-export default function DistrictStatsModal({ data, province, onClose, hasBuildingData, onToggleBuildings, buildingsActive, buildingsLoading, buildingsLabel = 'Buildings', buildingCount, buildingError, onOpenEncroachment, nullahsForDistrict, unmatchedNullahDistricts, infrastructure, unitKind = 'District', bodyOverride, tehsilsSection }) {
+export default function DistrictStatsModal({ data, province, onClose, hasBuildingData, onToggleBuildings, buildingsActive, buildingsLoading, buildingsLabel = 'Buildings', buildingCount, buildingError, onOpenEncroachment, nullahsForDistrict, unmatchedNullahDistricts, infrastructure, unitKind = 'District', bodyOverride, tehsilsSection, activeTehsil, hazardProfile }) {
   const [expandedUnmatched, setExpandedUnmatched] = React.useState(null);
   // Reset the expanded unmatched-district whenever the panel switches district
   React.useEffect(() => { setExpandedUnmatched(null); }, [data?.name]);
@@ -307,6 +307,29 @@ export default function DistrictStatsModal({ data, province, onClose, hasBuildin
           )}
 
           {tehsilsSection}
+
+          {activeTehsil && hazardProfile && (hazardProfile.hazards || hazardProfile.terrain) && (
+            <section className="ds-sec-3">
+              <div className="ds-hazard-profile">
+                <div className="ds-hazard-eyebrow">
+                  Hazard Profile
+                  <span className="ds-hazard-tehsil">{activeTehsil}</span>
+                </div>
+                {hazardProfile.hazards && (
+                  <div className="ds-hazard-row">
+                    <span className="ds-hazard-label">Prominent Hazards</span>
+                    <span className="ds-hazard-value">{hazardProfile.hazards}</span>
+                  </div>
+                )}
+                {hazardProfile.terrain && (
+                  <div className="ds-hazard-row">
+                    <span className="ds-hazard-label">Terrain &amp; Demography</span>
+                    <span className="ds-hazard-value">{hazardProfile.terrain}</span>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
 
         </div>
       </aside>
