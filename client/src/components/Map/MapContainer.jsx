@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MAP_CONFIG, PROVINCES } from '../../config/mapConfig';
@@ -147,6 +148,18 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
   const [stylePanelOpen, setStylePanelOpen] = useState(false);
   const [labelsPanelOpen, setLabelsPanelOpen] = useState(false);
   const [isFetchingBuildings, setIsFetchingBuildings] = useState(false);
+  // URL of the affected-house photo currently shown full-size, or null.
+  // Set by the raw-HTML popup's onclick (see attachAffectedHousesPopup)
+  // via the window.__openAffecteePhoto bridge below.
+  const [enlargedPhoto, setEnlargedPhoto] = useState(null);
+  const [infraLayersMenuOpen, setInfraLayersMenuOpen] = useState(false);
+  // { top, right } in viewport px — computed from the trigger button's own
+  // position when opened, since the dropdown is portaled straight to
+  // document.body (see render) and can no longer rely on being positioned
+  // relative to its trigger in the DOM.
+  const [infraLayersMenuPos, setInfraLayersMenuPos] = useState({ top: 0, right: 0 });
+  const infraLayersMenuRef = useRef(null);
+  const infraLayersDropdownRef = useRef(null);
   const { pos: stylePanelPos, onMouseDown: onStylePanelDrag, setPos: setStylePanelPos } = useDrag(270, 100);
   const { pos: labelsPanelPos, onMouseDown: onLabelsPanelDrag, setPos: setLabelsPanelPos } = useDrag(310, 100);
   // Anchor a popup under whichever button just opened it — the toolbar
@@ -551,6 +564,55 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
   // loadFloodLayers/the flood visibility effect exactly.
   const iconAvailable = (map, name) => map.hasImage(name);
 
+  // Click/hover wiring specific to the Affected Houses layer — a photo
+  // popup isn't something any other infra layer needs, so this is kept
+  // targeted rather than built into the generic loader below.
+  const attachAffectedHousesPopup = (map, layerId) => {
+    map.on('mouseenter', layerId, () => { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', layerId, () => { map.getCanvas().style.cursor = ''; });
+    map.on('click', layerId, (e) => {
+      const p = e.features[0]?.properties;
+      if (!p) return;
+      let affectees = [];
+      let photos = [];
+      try { affectees = JSON.parse(p.affectees); } catch { /* malformed/absent */ }
+      try { photos = JSON.parse(p.photos); } catch { /* malformed/absent */ }
+
+      // One "Affectee Name: X s/o Y" line per affectee — inline label:value,
+      // matching the rest of the app's normal body text rather than tiny
+      // uppercase micro-labels.
+      const affecteesHtml = affectees.map((a) => `
+        <div class="affected-popup-line">
+          <span class="affected-popup-label">Affectee Name:</span>
+          ${a.affectee} <span class="affected-popup-father">s/o ${a.father_name}</span>
+        </div>
+      `).join('');
+      const photosHtml = photos.map(({ photo }) => `
+        <img class="affected-popup-photo" src="${photo}" loading="lazy" decoding="async"
+             onerror="this.style.display='none'"
+             onclick="window.__openAffecteePhoto && window.__openAffecteePhoto('${photo}')" />
+      `).join('');
+      const heading = [p.event || 'Flash Flood', p.event_date].filter(Boolean).join(' ');
+      const subtitle = [p.moza ? `Village ${p.moza}` : null, p.district ? `District ${p.district}, GB` : null]
+        .filter(Boolean).join(' ');
+      const coords = [p.lat_dms, p.lon_dms].filter(Boolean).join(', ');
+
+      new mapboxgl.Popup({ closeButton: true, maxWidth: '315px', offset: 14 })
+        .setLngLat(e.lngLat)
+        .setHTML(`
+          <div class="affected-popup">
+            <div class="affected-popup-title">${heading}</div>
+            <div class="affected-popup-subtitle">${subtitle}</div>
+            <div class="affected-popup-divider"></div>
+            ${affecteesHtml}
+            ${coords ? `<div class="affected-popup-line"><span class="affected-popup-label">Coordinates:</span> ${coords}</div>` : ''}
+            ${photos.length ? `<div class="affected-popup-photos">${photosHtml}</div><div class="affected-popup-hint">Click a photo to enlarge</div>` : ''}
+          </div>
+        `)
+        .addTo(map);
+    });
+  };
+
   const loadInfraLayers = (map) => {
     const getFallbackIcon = (name) => iconAvailable(map, name) ? name : 'marker-15';
 
@@ -586,22 +648,61 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
           },
         });
       } else if (layer.type === 'symbol') {
-        map.addLayer({
-          id: `infra-${layer.id}-symbol`,
-          type: 'symbol',
-          source: srcId,
-          layout: {
-            visibility: 'none',
-            'icon-image': getFallbackIcon(layer.style.iconImage),
-            'icon-size': layer.style.iconSize ?? 1.1,
-            'icon-allow-overlap': true,
-            'icon-ignore-placement': true,
-          },
-          paint: {
-            'icon-color': layer.style.iconColor,
-            'icon-opacity': layer.style.iconOpacity ?? 1,
-          },
-        });
+        const customIconName = layer.style.iconUrl ? `infra-icon-${layer.id}` : null;
+
+        // customIconLoaded reflects whether the custom image actually made it
+        // into the style (map.addImage succeeded) — if it didn't (bad URL,
+        // undecodable format, ...), fall back to the maki-sprite marker with
+        // icon-color tinting instead of silently rendering nothing, which is
+        // exactly what happened here once already (SVG fetched fine but
+        // Mapbox's loadImage/addImage can't decode SVG, only raster formats).
+        const addSymbolLayer = (customIconLoaded) => {
+          if (map.getLayer(`infra-${layer.id}-symbol`)) return;
+          const useCustom = customIconName && customIconLoaded;
+          const iconName = useCustom ? customIconName : getFallbackIcon(layer.style.iconImage);
+          map.addLayer({
+            id: `infra-${layer.id}-symbol`,
+            type: 'symbol',
+            source: srcId,
+            layout: {
+              visibility: 'none',
+              'icon-image': iconName,
+              'icon-size': layer.style.iconSizeStops
+                // Larger when zoomed out, smaller when zoomed in — see the
+                // registry entry for why (not the usual convention).
+                ? ['interpolate', ['linear'], ['zoom'], ...layer.style.iconSizeStops.flat()]
+                : (layer.style.iconSize ?? 1.1),
+              'icon-anchor': useCustom ? 'bottom' : 'center',
+              'icon-allow-overlap': true,
+              'icon-ignore-placement': true,
+            },
+            // Custom icons bake their color into the raster image and aren't
+            // loaded as SDF, so icon-color would be a no-op for them — only
+            // apply it to the maki-sprite fallback.
+            paint: useCustom ? {
+              'icon-opacity': layer.style.iconOpacity ?? 1,
+            } : {
+              'icon-color': layer.style.iconColor,
+              'icon-opacity': layer.style.iconOpacity ?? 1,
+            },
+          });
+          if (layer.id === 'affected_houses') attachAffectedHousesPopup(map, `infra-${layer.id}-symbol`);
+        };
+
+        if (customIconName && !map.hasImage(customIconName)) {
+          map.loadImage(layer.style.iconUrl, (err, image) => {
+            let loaded = false;
+            if (!err && image) {
+              if (!map.hasImage(customIconName)) map.addImage(customIconName, image);
+              loaded = true;
+            } else {
+              console.warn(`[infra layer "${layer.id}"] custom icon failed to load (${layer.style.iconUrl}), falling back to default marker`, err);
+            }
+            addSymbolLayer(loaded);
+          });
+        } else {
+          addSymbolLayer(!!customIconName);
+        }
       } else if (layer.type === 'fill') {
         map.addLayer({
           id: `infra-${layer.id}-fill`,
@@ -1526,6 +1627,11 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
       const tehsilFills = ['tehsils-country-fill', 'tehsils-province-fill', 'tehsils-district-fill']
         .filter((id) => map.getLayer(id));
       if (tehsilFills.length && map.queryRenderedFeatures(e.point, { layers: tehsilFills }).length) return;
+      // Same for an affected-house pin — clicking one shouldn't also
+      // re-select/zoom to the district underneath it (was the cause of the
+      // map zooming out whenever a pin was clicked).
+      if (map.getLayer('infra-affected_houses-symbol')
+        && map.queryRenderedFeatures(e.point, { layers: ['infra-affected_houses-symbol'] }).length) return;
       const feat = e.features?.[0];
       if (!feat) return;
       const province = PROVINCES.find((p) => p.geojsonProvince === feat.properties.province);
@@ -1595,6 +1701,10 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
   const attachTehsilClick = (map, fillId) => {
     if (tehsilClickRef.current[fillId]) return;
     const onClick = (e) => {
+      // Don't let an affected-house pin sitting on top of this tehsil also
+      // trigger a tehsil-level zoom/select.
+      if (map.getLayer('infra-affected_houses-symbol')
+        && map.queryRenderedFeatures(e.point, { layers: ['infra-affected_houses-symbol'] }).length) return;
       const f = e.features?.[0];
       if (!f) return;
       onTehsilSelectRef.current?.(f.properties || {}, f.geometry || null);
@@ -2004,6 +2114,37 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     });
   };
 
+  // Raw mapboxgl.Popup content is plain HTML, not React — this exposes a
+  // plain function on window so a photo thumbnail's onclick can reach back
+  // into React state to open the lightbox (same technique the popup HTML
+  // itself has no other way to trigger a React re-render).
+  useEffect(() => {
+    window.__openAffecteePhoto = (url) => setEnlargedPhoto(url);
+    return () => { delete window.__openAffecteePhoto; };
+  }, []);
+
+  useEffect(() => {
+    if (!enlargedPhoto) return;
+    const onKey = (e) => { if (e.key === 'Escape') setEnlargedPhoto(null); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [enlargedPhoto]);
+
+  // Close the infra-layers dropdown on outside click, same pattern as
+  // Header.jsx's LocationSearch — checks both the trigger button and the
+  // portaled dropdown panel, since the panel is no longer a DOM descendant
+  // of the trigger's wrapper once portaled to document.body.
+  useEffect(() => {
+    if (!infraLayersMenuOpen) return;
+    const handleClickOutside = (e) => {
+      if (infraLayersMenuRef.current?.contains(e.target)) return;
+      if (infraLayersDropdownRef.current?.contains(e.target)) return;
+      setInfraLayersMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [infraLayersMenuOpen]);
+
   return (
     <div className="map-wrapper">
       <div className="map-title-bar">
@@ -2172,23 +2313,54 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
           Layer Style
         </button>
 
-        <div className="infra-toggle-group">
-          {INFRA_LAYERS.map((layer) => {
-            const active = !!infraLayers?.find((l) => l.id === layer.id)?.visible;
-            const chipColor = layer.style.lineColor || layer.style.circleColor || layer.style.fillColor;
-            return (
-              <button
-                key={layer.id}
-                className={`infra-toggle-chip${active ? ' infra-toggle-chip--active' : ''}`}
-                onClick={() => onInfraLayerToggle?.(layer.id)}
-                title={`Toggle ${layer.label}`}
-                style={{ '--chip-color': chipColor }}
-              >
-                <span className="infra-toggle-switch"><span className="infra-toggle-knob" /></span>
-                <span>{layer.label}</span>
-              </button>
-            );
-          })}
+        <div className="infra-layers-menu" ref={infraLayersMenuRef}>
+          <button
+            className={`infra-layers-trigger${infraLayersMenuOpen ? ' infra-layers-trigger--open' : ''}`}
+            onClick={(e) => {
+              if (!infraLayersMenuOpen) {
+                const r = e.currentTarget.getBoundingClientRect();
+                setInfraLayersMenuPos({ top: r.bottom + 8, right: window.innerWidth - r.right });
+              }
+              setInfraLayersMenuOpen((v) => !v);
+            }}
+            title="Toggle infrastructure layers"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2l9 5-9 5-9-5 9-5z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+              <path d="M3 12l9 5 9-5M3 17l9 5 9-5" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+            </svg>
+            Layers{infraLayers?.some((l) => l.visible) ? ` (${infraLayers.filter((l) => l.visible).length})` : ''}
+            <span className="infra-layers-trigger-caret">▾</span>
+          </button>
+          {/* Portaled straight to document.body so no ancestor's stacking
+              context (e.g. the fixed-position district stats dock) can ever
+              trap it underneath — z-index alone wasn't reliably winning
+              that fight from inside MapContainer's own DOM tree. */}
+          {infraLayersMenuOpen && createPortal(
+            <div
+              className="infra-layers-dropdown"
+              ref={infraLayersDropdownRef}
+              style={{ top: infraLayersMenuPos.top, right: infraLayersMenuPos.right }}
+            >
+              {INFRA_LAYERS.map((layer) => {
+                const active = !!infraLayers?.find((l) => l.id === layer.id)?.visible;
+                const chipColor = layer.style.lineColor || layer.style.circleColor || layer.style.fillColor || layer.style.iconColor || '#f97316';
+                return (
+                  <button
+                    key={layer.id}
+                    className={`infra-layers-row${active ? ' infra-layers-row--active' : ''}`}
+                    onClick={() => onInfraLayerToggle?.(layer.id)}
+                    title={`Toggle ${layer.label}`}
+                    style={{ '--chip-color': chipColor }}
+                  >
+                    <span className="infra-toggle-switch"><span className="infra-toggle-knob" /></span>
+                    <span>{layer.label}</span>
+                  </button>
+                );
+              })}
+            </div>,
+            document.body,
+          )}
         </div>
       </div>
 
@@ -2232,6 +2404,30 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
             state. */}
         <div id="ds-dock-bottom-slot" className="ds-dock-bottom-slot" />
       </div>
+
+      {enlargedPhoto && (
+        <div
+          className="affectee-lightbox"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setEnlargedPhoto(null)}
+        >
+          <button
+            className="affectee-lightbox-close"
+            onClick={() => setEnlargedPhoto(null)}
+            title="Close"
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <img
+            className="affectee-lightbox-img"
+            src={enlargedPhoto}
+            alt="Affected house"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
 
       <StyleModal
         isOpen={modalOpen}

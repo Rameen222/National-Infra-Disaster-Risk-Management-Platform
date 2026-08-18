@@ -149,6 +149,7 @@ function LocationSearch({ onSelect }) {
 function Header({ onSearch }) {
   const location = useLocation();
   const onIncidentRecords = location.pathname.startsWith('/incident-records');
+  const onFloodSimulation = location.pathname.startsWith('/flood-simulation');
 
   return (
     <header className="header">
@@ -173,6 +174,17 @@ function Header({ onSearch }) {
             <path d="M8 13h8M8 17h8M8 9h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
           Incident Records
+        </Link>
+        <Link
+          to="/flood-simulation-v5"
+          className={`header-nav-btn${onFloodSimulation ? ' header-nav-btn--active' : ''}`}
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M2 15c1.8-1.6 3.6-1.6 5.4 0s3.6 1.6 5.4 0 3.6-1.6 5.4 0 3.6 1.6 5.4 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            <path d="M2 19c1.8-1.6 3.6-1.6 5.4 0s3.6 1.6 5.4 0 3.6-1.6 5.4 0 3.6 1.6 5.4 0" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.6" />
+            <path d="M12 3v7M9 7l3 3 3-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Flood Simulation
         </Link>
         <LocationSearch onSelect={onSearch} />
         <button className="header-btn" title="Help">

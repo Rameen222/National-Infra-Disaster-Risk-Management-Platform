@@ -59,10 +59,18 @@
 .header-left {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  flex: 1;
+  min-width: 0;
+  /* Was position:absolute + translateX(-50%), which centered this purely
+     on the header's own width, ignoring how much room .header-right's
+     nav buttons actually took — once a second nav button was added, the
+     title started rendering on top of it. Flexing it between the fixed-
+     width logo and right-side controls means it only ever occupies the
+     space actually left over, and shrinks properly at .header-title h1. */
+  overflow: hidden;
+  padding: 0 12px;
 }
 
 .header-logo-wrap {
@@ -74,6 +82,7 @@
 .header-logo {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .header-logo-link {
@@ -103,6 +112,7 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
+  min-width: 0;
 }
 
 .header-title h1 {
@@ -111,6 +121,9 @@
   font-weight: 400;
   color: var(--text-primary);
   letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-acronym {
@@ -124,6 +137,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 /* ── Incident Records nav button ─────────────────────── */

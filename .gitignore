@@ -50,6 +50,15 @@ client/public/flood/
 client/public/pakistan_districts.geojson
 # Full road network is 651MB — over GitHub's hard limit, keep local-only.
 client/public/infra/roads.geojson
+# Mardan flood-sim datasets (v1 + v5, ~1.5GB combined: DEM/hillshade/depth
+# PNGs, building-impact chunks, peak grids) — same "transfer manually" rule.
+client/public/data/
+
+# v5 building-impact pipeline's intermediate/working files - regenerable by
+# re-running scripts/v5_impact/01-04 against the source building data, not
+# meant to be committed. Contains a 190MB file that exceeds GitHub's 100MB
+# hard limit on its own.
+scripts/v5_impact/_work/
 
 # Claude session data
 .claude/

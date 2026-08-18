@@ -56,4 +56,25 @@ export const INFRA_LAYERS = [
     defaultVisible: false,
     style: { circleColor: '#a855f7', circleRadius: 5, circleOpacity: 0.9 },
   },
+  {
+    id: 'affected_houses',
+    label: 'Affected Houses',
+    // Point — required properties: `moza`, `affectees` (array), `photos` (array),
+    // `lat_dms`, `lon_dms`. Furori flash-flood field data (Aug 2026), pre-grouped
+    // one feature per house — see scripts/prep_affected_houses_geojson.py.
+    type: 'symbol',
+    source: '/infra/affected_houses.geojson',
+    defaultVisible: false,
+    style: {
+      // Mapbox's loadImage/addImage only decodes raster formats — SVG fetches
+      // fine but silently fails to decode, so this must be a PNG (see
+      // scripts/generate_affected_house_pin_png.py for how it was made).
+      iconUrl: '/infra/affected-house-pin.png',
+      // Larger when zoomed out, smaller when zoomed in — inverse of the usual
+      // convention, by explicit request (points are tightly clustered in one
+      // village, so a bigger pin reads better from far out; up close a smaller
+      // pin sits more precisely on the actual house).
+      iconSizeStops: [[6, 1.3], [10, 1.05], [13, 0.85], [16, 0.65], [18, 0.5]],
+    },
+  },
 ];

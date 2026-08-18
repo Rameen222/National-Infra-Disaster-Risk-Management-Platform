@@ -628,26 +628,24 @@
   box-shadow: 0 0 12px rgba(251, 191, 36, 0.12);
 }
 
-/* ── Infrastructure layer toggle chips (top toolbar) ─────────────────── */
-.infra-toggle-group {
-  display: flex;
-  align-items: center;
-  gap: 9px;
+/* ── Infrastructure layers dropdown (top toolbar) ─────────────────────── */
+.infra-layers-menu {
+  position: relative;
   margin-left: auto;
   padding-left: 16px;
   border-left: 1px solid rgba(255, 255, 255, 0.10);
 }
 
-.infra-toggle-chip {
+.infra-layers-trigger {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 8px 16px 8px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-secondary);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.15px;
   white-space: nowrap;
@@ -655,17 +653,64 @@
   transition: all 0.2s ease;
 }
 
-.infra-toggle-chip:hover {
-  border-color: color-mix(in srgb, var(--chip-color) 45%, transparent);
-  color: color-mix(in srgb, var(--chip-color) 80%, white);
-  background: color-mix(in srgb, var(--chip-color) 8%, transparent);
+.infra-layers-trigger:hover,
+.infra-layers-trigger--open {
+  border-color: var(--primary);
+  color: var(--primary-light);
+  background: var(--primary-muted);
 }
 
-.infra-toggle-chip--active {
+.infra-layers-trigger-caret {
+  font-size: 10px;
+  margin-left: 2px;
+  opacity: 0.7;
+}
+
+.infra-layers-dropdown {
+  /* Portaled to document.body (see MapContainer.jsx) — position: fixed with
+     top/right set inline from the trigger button's own getBoundingClientRect,
+     since it's no longer nested inside .infra-layers-menu in the DOM. This
+     sidesteps stacking-context fights entirely rather than relying on
+     z-index alone to beat the fixed-position district stats dock. */
+  position: fixed;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 220px;
+  padding: 8px;
+  background: rgba(10, 16, 26, 0.97);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-accent, rgba(255, 255, 255, 0.14));
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg, 0 12px 28px rgba(0, 0, 0, 0.45));
+}
+
+.infra-layers-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.infra-layers-row:hover {
+  background: color-mix(in srgb, var(--chip-color) 10%, transparent);
+  color: color-mix(in srgb, var(--chip-color) 80%, white);
+}
+
+.infra-layers-row--active {
   color: var(--chip-color);
-  border-color: color-mix(in srgb, var(--chip-color) 50%, transparent);
   background: color-mix(in srgb, var(--chip-color) 12%, transparent);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--chip-color) 20%, transparent);
 }
 
 .infra-toggle-switch {
@@ -689,13 +734,159 @@
   transition: transform 0.2s ease, background 0.2s ease;
 }
 
-.infra-toggle-chip--active .infra-toggle-switch {
+.infra-layers-row--active .infra-toggle-switch {
   background: color-mix(in srgb, var(--chip-color) 55%, transparent);
 }
 
-.infra-toggle-chip--active .infra-toggle-knob {
+.infra-layers-row--active .infra-toggle-knob {
   transform: translateX(13px);
   background: var(--chip-color);
+}
+
+/* ── Affected-house popup (mapboxgl.Popup raw HTML content) ──────────── */
+/* Scoped via the map wrapper, not :has(), matching FloodSimulationV5Page's
+   popup override — this is the only mapboxgl.Popup used in this file. Same
+   dark-navy glass treatment as the sidebars (rgba navy + backdrop-blur),
+   not a flat opaque card, per the rest of the app's language. */
+.map-wrapper .mapboxgl-popup-content {
+  background: rgba(10, 16, 26, 0.94);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 17px 19px;
+  font-family: var(--font-sans);
+  /* Roomier card, roughly 4:3 (width:height) for the common 1-affectee
+     case — width fixed via maxWidth on the Popup itself, height stays
+     intrinsic so it can grow for extra affectees/photos without clipping. */
+  min-width: 262px;
+}
+.map-wrapper .mapboxgl-popup-tip {
+  border-top-color: rgba(10, 16, 26, 0.94);
+  border-bottom-color: rgba(10, 16, 26, 0.94);
+}
+.map-wrapper .mapboxgl-popup-close-button {
+  color: var(--text-muted);
+  font-size: 20px;
+  padding: 4px 8px;
+}
+.map-wrapper .mapboxgl-popup-close-button:hover {
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.affected-popup-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--primary-light);
+}
+
+.affected-popup-subtitle {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+.affected-popup-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 12px 0;
+}
+
+.affected-popup-line {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+.affected-popup-label {
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-right: 4px;
+}
+.affected-popup-father {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.affected-popup-photos {
+  display: flex;
+  gap: 9px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.affected-popup-photo {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.affected-popup-photo:hover {
+  opacity: 0.88;
+  border-color: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.affected-popup-hint {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-top: 10px;
+}
+
+/* ── Full-size photo lightbox ─────────────────────────────────────────── */
+.affectee-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 16, 26, 0.88);
+  backdrop-filter: blur(6px);
+  cursor: zoom-out;
+  animation: affectee-lightbox-fade 0.15s ease;
+}
+@keyframes affectee-lightbox-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.affectee-lightbox-img {
+  max-width: min(90vw, 900px);
+  max-height: 88vh;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  cursor: default;
+}
+
+.affectee-lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+.affectee-lightbox-close:hover {
+  border-color: var(--primary);
+  color: var(--primary-light);
+  background: var(--primary-muted);
 }
 
 .label-btn--on {
