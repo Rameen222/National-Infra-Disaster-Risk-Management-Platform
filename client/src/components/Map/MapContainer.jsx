@@ -2039,7 +2039,9 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     if (!mapRef.current || styleKey === activeStyle) return;
     setActiveStyle(styleKey);
     setMapLoaded(false);
-    mapRef.current.setStyle(MAP_CONFIG.styles[styleKey]);
+    const externalStyles = { esri: MAP_CONFIG.esriImagery, 'google-sat': MAP_CONFIG.googleSatellite, 'google-hybrid': MAP_CONFIG.googleHybrid };
+    const styleSource = externalStyles[styleKey] || MAP_CONFIG.styles[styleKey];
+    mapRef.current.setStyle(styleSource);
     mapRef.current.once('style.load', () => {
       if (!showLabels) hideLabels(mapRef.current);
       addDarkOverlay(mapRef.current);
@@ -2170,7 +2172,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
             <path d="M2 12l10 5 10-5" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
             <path d="M2 16l10 5 10-5" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
           </svg>
-          <span>Basemap: {activeStyle.charAt(0).toUpperCase() + activeStyle.slice(1)}</span>
+          <span>Basemap: {{ satellite: 'Satellite', dark: 'Dark', light: 'Light', streets: 'Streets', outdoors: 'Outdoors', 'google-sat': 'Google Satellite', 'google-hybrid': 'Google Hybrid', esri: 'Esri Imagery' }[activeStyle] || activeStyle.charAt(0).toUpperCase() + activeStyle.slice(1)}</span>
         </button>
         {stylePanelOpen && (
           <div className="style-panel-overlay" onClick={() => setStylePanelOpen(false)}>
@@ -2184,15 +2186,19 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
                 <button className="style-panel-close" onClick={() => setStylePanelOpen(false)}>✕</button>
               </div>
               <div className="style-panel-body">
-                {Object.keys(MAP_CONFIG.styles).map((key, i) => {
-                  const colors = ['#38bdf8', '#a78bfa', '#fbbf24', '#34d399', '#fb7185'];
+                {[...Object.keys(MAP_CONFIG.styles), 'google-sat', 'google-hybrid', 'esri'].map((key, i) => {
+                  const colors = ['#38bdf8', '#a78bfa', '#fbbf24', '#34d399', '#fb7185', '#22c55e', '#3b82f6', '#f97316'];
                   const icons = [
                     <svg key="sat" width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.5"/><path d="M12 4v16M4 12h16M6.3 6.3l11.4 11.4M17.7 6.3L6.3 17.7" stroke="currentColor" strokeWidth="1" opacity="0.5"/></svg>,
                     <svg key="dark" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>,
                     <svg key="light" width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>,
                     <svg key="streets" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12h4l3-9 4 18 3-9h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
                     <svg key="outdoors" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M8 21l4-10 4 10M3 21l5-14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M13.5 7l4.5 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><circle cx="16" cy="5" r="2" stroke="currentColor" strokeWidth="1.5"/></svg>,
+                    <svg key="gSat" width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5"/><path d="M12 3a9 9 0 010 18" fill="currentColor" opacity="0.15"/><path d="M3 12h18M12 3c3 3 4.5 6 4.5 9s-1.5 6-4.5 9M12 3c-3 3-4.5 6-4.5 9s1.5 6 4.5 9" stroke="currentColor" strokeWidth="1" opacity="0.5"/></svg>,
+                    <svg key="gHybrid" width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5"/><path d="M12 3a9 9 0 010 18" fill="currentColor" opacity="0.15"/><path d="M3 12h18M12 3c3 3 4.5 6 4.5 9s-1.5 6-4.5 9M12 3c-3 3-4.5 6-4.5 9s1.5 6 4.5 9" stroke="currentColor" strokeWidth="1" opacity="0.5"/><path d="M7 8h10M7 12h6M7 16h8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>,
+                    <svg key="esri" width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M3 9h18M9 3v18" stroke="currentColor" strokeWidth="1" opacity="0.5"/><circle cx="15" cy="15" r="3" stroke="currentColor" strokeWidth="1.5"/></svg>,
                   ];
+                  const labels = { satellite: 'Satellite', dark: 'Dark', light: 'Light', streets: 'Streets', outdoors: 'Outdoors', 'google-sat': 'Google Satellite', 'google-hybrid': 'Google Hybrid', esri: 'Esri Imagery' };
                   return (
                     <button
                       key={key}
@@ -2201,7 +2207,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
                       style={{ '--item-color': colors[i % colors.length] }}
                     >
                       <span className="style-panel-icon">{icons[i % icons.length]}</span>
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                      {labels[key] || key}
                     </button>
                   );
                 })}

@@ -6,6 +6,7 @@ import IncidentDetailPage from './components/IncidentRecords/IncidentDetailPage'
 import FloodSimulationPage from './components/FloodSimulation/FloodSimulationPage';
 import FloodSimulation3DPage from './components/FloodSimulation3D/FloodSimulation3DPage';
 import FloodSimulationV5Page from './components/FloodSimulationV5/FloodSimulationV5Page';
+import FloodVulnerabilityPage from './components/FloodVulnerability/FloodVulnerabilityPage';
 import Sidebar from './components/Sidebar/Sidebar';
 import DistrictTehsilSidebar from './components/Sidebar/DistrictTehsilSidebar';
 import MapContainer from './components/Map/MapContainer';
@@ -761,6 +762,7 @@ function App() {
           <Route path="/flood-simulation" element={<FloodSimulationPage />} />
           <Route path="/flood-simulation-3d" element={<FloodSimulation3DPage />} />
           <Route path="/flood-simulation-v5" element={<FloodSimulationV5Page />} />
+          <Route path="/flood-simulation-vulnerability" element={<FloodVulnerabilityPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       )}

@@ -24,6 +24,69 @@ export const MAP_CONFIG = {
     streets: 'mapbox://styles/mapbox/streets-v12',
     outdoors: 'mapbox://styles/mapbox/outdoors-v12',
   },
+  esriImagery: {
+    version: 8,
+    sources: {
+      'esri-world-imagery': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        ],
+        tileSize: 256,
+        attribution: 'Esri, Maxar, Earthstar Geographics',
+        maxzoom: 18,
+      },
+    },
+    layers: [
+      {
+        id: 'esri-world-imagery',
+        type: 'raster',
+        source: 'esri-world-imagery',
+      },
+    ],
+  },
+  googleSatellite: {
+    version: 8,
+    sources: {
+      'google-satellite': {
+        type: 'raster',
+        tiles: [
+          'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+        ],
+        tileSize: 256,
+        attribution: 'Google',
+        maxzoom: 20,
+      },
+    },
+    layers: [
+      {
+        id: 'google-satellite',
+        type: 'raster',
+        source: 'google-satellite',
+      },
+    ],
+  },
+  googleHybrid: {
+    version: 8,
+    sources: {
+      'google-hybrid': {
+        type: 'raster',
+        tiles: [
+          'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+        ],
+        tileSize: 256,
+        attribution: 'Google',
+        maxzoom: 20,
+      },
+    },
+    layers: [
+      {
+        id: 'google-hybrid',
+        type: 'raster',
+        source: 'google-hybrid',
+      },
+    ],
+  },
   defaultStyle: 'satellite',
 };
 

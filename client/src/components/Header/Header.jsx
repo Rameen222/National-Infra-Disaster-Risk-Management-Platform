@@ -176,7 +176,7 @@ function Header({ onSearch }) {
           Incident Records
         </Link>
         <Link
-          to="/flood-simulation-v5"
+          to="/flood-simulation-vulnerability"
           className={`header-nav-btn${onFloodSimulation ? ' header-nav-btn--active' : ''}`}
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
