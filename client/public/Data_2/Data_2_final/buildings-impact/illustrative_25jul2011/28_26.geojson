@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "MultiPolygon", "coordinates": [[[[72.12246339, 34.43039999], [72.1223778, 34.43039091], [72.12237345, 34.430419], [72.12245904, 34.43042809], [72.12246339, 34.43039999]]]]}, "properties": {"id": "8J6JC4JC+5X77", "height": 3.31686806678772, "hmax": 0.004, "ratio": 0.001, "vulnClass": "none"}}]}

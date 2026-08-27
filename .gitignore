@@ -69,4 +69,4 @@ pybackend/temp/
 
 # Logs
 server.log
-pybackend.log
+pybackend.log_incoming/

@@ -1,0 +1,12 @@
+scenario,no_exposure,low_vulnerability,moderate_vulnerability,high_vulnerability,very_high_vulnerability,outside_model_domain,mean_depth_flooded,max_depth_m
+event_2006,377304,1257,718,87,5,0,0.026,3.474
+event_2010,352777,11256,10124,3758,1456,0,0.165,10.548
+illustrative_25jul2011,376892,1375,1004,98,2,0,0.032,2.882
+P50_ordinary,379371,0,0,0,0,0,0.001,0.001
+P75_notable,379371,0,0,0,0,0,0.002,0.034
+P90_moderate,379371,0,0,0,0,0,0.003,0.445
+design_T5,375623,1859,1586,268,35,0,0.043,3.849
+design_T10,373650,2590,2458,552,121,0,0.06,4.832
+design_T25,367411,5894,4497,1266,303,0,0.093,5.998
+design_T50,362251,8581,6267,1820,452,0,0.125,6.453
+design_T100,356105,11935,8376,2347,608,0,0.154,6.713

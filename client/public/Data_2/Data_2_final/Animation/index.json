@@ -1,0 +1,93 @@
+{
+  "animation_root": "Animation",
+  "scenarios": [
+    {
+      "scenario": "event_2006",
+      "n_frames": 145,
+      "dt_hours": 1.0,
+      "max_depth_m": 11.3708,
+      "category": "Historical events",
+      "manifest": "Animation/event_2006/manifest.json"
+    },
+    {
+      "scenario": "event_2010",
+      "n_frames": 169,
+      "dt_hours": 1.0,
+      "max_depth_m": 26.59,
+      "category": "Historical events",
+      "manifest": "Animation/event_2010/manifest.json"
+    },
+    {
+      "scenario": "design_T5",
+      "n_frames": 97,
+      "dt_hours": 1.0,
+      "max_depth_m": 10.1053,
+      "category": "Design storms + illustrative",
+      "manifest": "Animation/design_T5/manifest.json"
+    },
+    {
+      "scenario": "design_T10",
+      "n_frames": 97,
+      "dt_hours": 1.0,
+      "max_depth_m": 11.3243,
+      "category": "Design storms + illustrative",
+      "manifest": "Animation/design_T10/manifest.json"
+    },
+    {
+      "scenario": "design_T25",
+      "n_frames": 97,
+      "dt_hours": 1.0,
+      "max_depth_m": 13.881,
+      "category": "Design storms + illustrative",
+      "manifest": "Animation/design_T25/manifest.json"
+    },
+    {
+      "scenario": "design_T50",
+      "n_frames": 97,
+      "dt_hours": 1.0,
+      "max_depth_m": 16.0272,
+      "category": "Design storms + illustrative",
+      "manifest": "Animation/design_T50/manifest.json"
+    },
+    {
+      "scenario": "design_T100",
+      "n_frames": 97,
+      "dt_hours": 1.0,
+      "max_depth_m": 17.5677,
+      "category": "Design storms + illustrative",
+      "manifest": "Animation/design_T100/manifest.json"
+    },
+    {
+      "scenario": "illustrative_25jul2011",
+      "n_frames": 97,
+      "dt_hours": 1.0,
+      "max_depth_m": 9.0149,
+      "category": "Design storms + illustrative",
+      "manifest": "Animation/illustrative_25jul2011/manifest.json"
+    },
+    {
+      "scenario": "P50_ordinary",
+      "n_frames": 97,
+      "dt_hours": 1.0,
+      "max_depth_m": 0.01,
+      "category": "Probabilistic",
+      "manifest": "Animation/P50_ordinary/manifest.json"
+    },
+    {
+      "scenario": "P75_notable",
+      "n_frames": 97,
+      "dt_hours": 1.0,
+      "max_depth_m": 0.6119,
+      "category": "Probabilistic",
+      "manifest": "Animation/P75_notable/manifest.json"
+    },
+    {
+      "scenario": "P90_moderate",
+      "n_frames": 97,
+      "dt_hours": 1.0,
+      "max_depth_m": 4.3618,
+      "category": "Probabilistic",
+      "manifest": "Animation/P90_moderate/manifest.json"
+    }
+  ]
+}
