@@ -55,12 +55,6 @@ client/public/
 client/public.rar
 client/public.zip
 
-# v5 building-impact pipeline's intermediate/working files - regenerable by
-# re-running scripts/v5_impact/01-04 against the source building data, not
-# meant to be committed. Contains a 190MB file that exceeds GitHub's 100MB
-# hard limit on its own.
-scripts/v5_impact/_work/
-
 # Old raw data drop, unrelated to any script in this repo
 _incoming/
 
