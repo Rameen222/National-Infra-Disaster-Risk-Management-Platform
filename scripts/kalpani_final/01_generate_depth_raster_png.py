@@ -35,7 +35,7 @@ RASTER_DIR = f'{OUT_DIR}/rasters'
 os.makedirs(RASTER_DIR, exist_ok=True)
 
 SCENARIOS = [
-    ('event_2006', '5 Aug 2006 (validation event)', 'Historical events'),
+    ('event_2006', '5 Aug 2006', 'Historical events'),
     ('event_2010', '2010 event', 'Historical events'),
     ('design_T5', 'T5 design storm', 'Design storms (return period)'),
     ('design_T10', 'T10 design storm', 'Design storms (return period)'),

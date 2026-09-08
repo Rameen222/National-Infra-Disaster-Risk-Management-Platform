@@ -115,7 +115,7 @@ SCENARIO_BREAKS = {
 # without regenerating all 11 - leave empty to run everything.
 ONLY_SCENARIOS = []
 SCENARIO_LABEL = {
-    'event_2006': '5 Aug 2006 (validation event)',
+    'event_2006': '5 Aug 2006',
     'event_2010': '2010 event',
     'design_T5': 'T5 design storm',
     'design_T10': 'T10 design storm',

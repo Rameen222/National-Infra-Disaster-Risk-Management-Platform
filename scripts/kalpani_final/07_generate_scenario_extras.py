@@ -43,7 +43,7 @@ ADDITIONAL_DIR = 'C:/NDMA/infra_portal/client/public/Data_2/Data_2_final/Additio
 os.makedirs(ADDITIONAL_DIR, exist_ok=True)
 
 SCENARIO_META = {
-    'event_2006': ('5 Aug 2006 (validation event)', 'Historical events'),
+    'event_2006': ('5 Aug 2006', 'Historical events'),
     'event_2010': ('2010 event', 'Historical events'),
     'design_T5': ('T5 design storm', 'Design storms + illustrative'),
     'design_T10': ('T10 design storm', 'Design storms + illustrative'),
