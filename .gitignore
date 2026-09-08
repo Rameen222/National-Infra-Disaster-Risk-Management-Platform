@@ -28,56 +28,38 @@ geekey.json
 # Test coverage
 coverage/
 
-# Large geospatial data files
+# Defensive: geojsons are usually large exports, not meant to be committed
+# anywhere in the repo. Mainly guards against one being dropped outside
+# client/public/ by accident - that whole folder is excluded wholesale below
+# regardless of file type.
 *.geojson
-!client/public/**/*.geojson
-!client/public/**/*.csv
-!client/public/**/*.json
-!client/public/**/*.qmd
 
-# Public folder assets are required for the GIS app to run on a fresh clone
-!client/public/
-!client/public/**
+# client/public/ - untracked in full (~4.5GB: GIS rasters/geojsons/CSVs,
+# .glb models, scenario data). Every machine running this app needs its own
+# full copy transferred manually (USB/cloud drive) into this exact path -
+# see the project setup notes for the transfer steps. Was previously a mix
+# of tracked small files + excluded large folders; simplified to ignore the
+# whole thing since a manual full-folder copy is required either way.
+# Known contents as of 2026-09-08 (for reference when setting up a new
+# machine - all of it is needed for a fully working portal):
+#   Data_2_final/         - Flood Vulnerability V2 (Kalpani) data, ~2.1GB,
+#                            regenerable via scripts/kalpani_final/01-14
+#   scenario_outputs/     - GCOP Exposure modal + /pyapi/simex/* routes
+#   floodextent/          - main dashboard flood-extent layer
+#   flood/                - main dashboard historical flood overlays
+#   pakistan_districts.geojson - main dashboard district boundaries
+#   infra/roads.geojson   - road network (~651MB) - NOTE: missing from this
+#                            machine's own copy too, track down separately
+#   everything else       - models/, small geojsons/CSVs/images, etc.
+client/public/
 client/public.rar
 client/public.zip
-
-# Large GIS datasets — too big for GitHub (100MB hard limit).
-# These must be transferred manually (zip/cloud drive/external disk) into
-# the same relative paths under client/public/ on any machine running the
-# app - simplest is to just copy the whole client/public/ folder over,
-# rather than hunting down each path individually (see the folders below;
-# everything else in client/public/ is small enough to be tracked in git).
-# Still actively used by the app, so all required for a working portal
-# (gitignore comments must be their own line, not trailing, hence these
-# separate lines rather than one per pattern):
-# - scenario_outputs/: GCOP Exposure modal + /pyapi/simex/* backend routes
-# - floodextent/: main dashboard flood-extent layer
-# - flood/: main dashboard historical flood overlays (2010/2022/2025/Sus)
-# - pakistan_districts.geojson: main dashboard district boundaries
-client/public/scenario_outputs/
-client/public/floodextent/
-client/public/flood/
-client/public/pakistan_districts.geojson
-# Full road network is 651MB — over GitHub's hard limit, keep local-only.
-# NOTE: missing from this machine's working copy as of 2026-09-08 too -
-# track down wherever it was originally generated/backed up before relying
-# on it existing anywhere.
-client/public/infra/roads.geojson
 
 # v5 building-impact pipeline's intermediate/working files - regenerable by
 # re-running scripts/v5_impact/01-04 against the source building data, not
 # meant to be committed. Contains a 190MB file that exceeds GitHub's 100MB
 # hard limit on its own.
 scripts/v5_impact/_work/
-
-# Flood Vulnerability V2 (Kalpani) generated data - ~2.1GB of animation
-# frames/rasters/manifests, all regenerable by re-running
-# scripts/kalpani_final/01-14 against the source data in
-# C:/NDMA/FLOOD_SIMULATION_FINAL. Same "too big for GitHub, transfer/
-# regenerate locally" rule as the other large GIS datasets above - only the
-# generating scripts are committed, not their output. (Folder was renamed
-# from Data_2/ to Data_2_final/.)
-client/public/Data_2_final/
 
 # Old raw data drop, unrelated to any script in this repo
 _incoming/
