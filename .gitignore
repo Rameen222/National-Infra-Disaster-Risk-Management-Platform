@@ -42,17 +42,27 @@ client/public.rar
 client/public.zip
 
 # Large GIS datasets — too big for GitHub (100MB hard limit).
-# These must be transferred manually (zip/cloud drive) into the same
-# relative paths under client/public/ on any machine running the app.
+# These must be transferred manually (zip/cloud drive/external disk) into
+# the same relative paths under client/public/ on any machine running the
+# app - simplest is to just copy the whole client/public/ folder over,
+# rather than hunting down each path individually (see the folders below;
+# everything else in client/public/ is small enough to be tracked in git).
+# Still actively used by the app, so all required for a working portal
+# (gitignore comments must be their own line, not trailing, hence these
+# separate lines rather than one per pattern):
+# - scenario_outputs/: GCOP Exposure modal + /pyapi/simex/* backend routes
+# - floodextent/: main dashboard flood-extent layer
+# - flood/: main dashboard historical flood overlays (2010/2022/2025/Sus)
+# - pakistan_districts.geojson: main dashboard district boundaries
 client/public/scenario_outputs/
 client/public/floodextent/
 client/public/flood/
 client/public/pakistan_districts.geojson
 # Full road network is 651MB — over GitHub's hard limit, keep local-only.
+# NOTE: missing from this machine's working copy as of 2026-09-08 too -
+# track down wherever it was originally generated/backed up before relying
+# on it existing anywhere.
 client/public/infra/roads.geojson
-# Mardan flood-sim datasets (v1 + v5, ~1.5GB combined: DEM/hillshade/depth
-# PNGs, building-impact chunks, peak grids) — same "transfer manually" rule.
-client/public/data/
 
 # v5 building-impact pipeline's intermediate/working files - regenerable by
 # re-running scripts/v5_impact/01-04 against the source building data, not
