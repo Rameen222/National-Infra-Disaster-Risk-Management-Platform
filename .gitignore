@@ -60,13 +60,14 @@ client/public/data/
 # hard limit on its own.
 scripts/v5_impact/_work/
 
-# Flood Vulnerability V2 (Kalpani) generated data - ~3.5GB of animation
+# Flood Vulnerability V2 (Kalpani) generated data - ~2.1GB of animation
 # frames/rasters/manifests, all regenerable by re-running
-# scripts/kalpani_final/01-08 against the source data in
+# scripts/kalpani_final/01-14 against the source data in
 # C:/NDMA/FLOOD_SIMULATION_FINAL. Same "too big for GitHub, transfer/
 # regenerate locally" rule as the other large GIS datasets above - only the
-# generating scripts are committed, not their output.
-client/public/Data_2/
+# generating scripts are committed, not their output. (Folder was renamed
+# from Data_2/ to Data_2_final/.)
+client/public/Data_2_final/
 
 # Old raw data drop, unrelated to any script in this repo
 _incoming/

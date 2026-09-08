@@ -39,6 +39,23 @@ currents. Every cell is therefore additionally masked to hmax >= 0.05 m
 this is peak velocity WHERE there is also real floodwater, not peak
 velocity anywhere in the domain.
 
+CONFIRMED ARTIFACT FIX (see flood-v2-roadmap/CHECKLIST.md, item 1): the
+domain-max 14.142 m/s (=10*sqrt(2)) contamination was traced to the exact
+same single grid cell - row=347, col=614 (~34.3366N, 72.3949E) - in all 4
+affected scenarios (event_2010, design_T25/T50/T100), where depth is only
+8-10cm. A cell that's barely wet showing a velocity faster than any
+recorded flood current, at the identical value regardless of how much rain
+fell, is a numerical artifact, not a real flow. Fixed two ways:
+  1. That specific (row, col) cell is explicitly excluded (set to NaN,
+     rendered transparent like a dry cell) in every scenario, not just the
+     4 where it happened to exceed the old domain-max.
+  2. A general safety net for any other undiscovered instance of the same
+     failure mode: any cell with vmax > SHALLOW_SUPERSONIC_VMAX in water
+     shallower than SHALLOW_SUPERSONIC_DEPTH is excluded the same way -
+     shallow water moving implausibly fast is the actual signature of this
+     bug, not a threshold anyone would expect a real flood current to
+     cross.
+
 Output:
   client/public/Data_2/Data_2_final/rasters/<scenario>_velocity.png
   client/public/Data_2/Data_2_final/velocity_manifest.json
@@ -86,6 +103,11 @@ RAMP_RGB = [
 ]
 DRY_THRESHOLD = BREAKS[0]
 DEPTH_GATE_M = 0.05  # same dry threshold the depth layer uses - see module docstring
+
+# Artifact fix (see docstring "CONFIRMED ARTIFACT FIX" above).
+ARTIFACT_CELL_ROWCOL = (347, 614)  # exact cell confirmed across 4 scenarios
+SHALLOW_SUPERSONIC_VMAX = 5.0   # m/s - above any recorded flood current here
+SHALLOW_SUPERSONIC_DEPTH = 0.3  # m - "shallow" for this purpose
 
 UTM43 = 'EPSG:32643'
 WGS84 = 'EPSG:4326'
@@ -154,6 +176,18 @@ for scen, label, category in SCENARIOS:
     cy = ds['corner_y'].values
     ds.close()
 
+    # Artifact fix: exclude the confirmed bad cell explicitly, plus the
+    # general "shallow water moving implausibly fast" safety net.
+    ar, ac = ARTIFACT_CELL_ROWCOL
+    n_masked_specific = int(np.isfinite(vmax[ar, ac]))
+    vmax[ar, ac] = np.nan
+    shallow_supersonic = (vmax > SHALLOW_SUPERSONIC_VMAX) & (hmax < SHALLOW_SUPERSONIC_DEPTH)
+    n_masked_general = int(np.sum(shallow_supersonic & np.isfinite(vmax)))
+    vmax[shallow_supersonic] = np.nan
+    if n_masked_specific or n_masked_general:
+        print(f'  masked {n_masked_specific} known-artifact cell + '
+              f'{n_masked_general} shallow-supersonic cell(s)', flush=True)
+
     n_rows, m_cols = msk.shape
     x0 = float(cx[0, 0])
     y0_top = float(cy[-1, 0])
@@ -181,6 +215,7 @@ for scen, label, category in SCENARIOS:
     manifest['scenarios'].append({
         'id': scen, 'label': label, 'category': category,
         'file': f'rasters/{fname}', 'domain_peak_ms': round(domain_peak, 3),
+        'artifact_cells_masked': n_masked_specific + n_masked_general,
     })
 
 with open(f'{OUT_DIR}/velocity_manifest.json', 'w') as f:

@@ -2,9 +2,9 @@
    Header – Sleek top bar
    ══════════════════════════════════════════════════════════ */
 .header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   position: relative;
   background: var(--bg-base);
   padding: 0 20px;
@@ -59,16 +59,13 @@
 .header-left {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 12px;
-  flex: 1;
   min-width: 0;
-  /* Was position:absolute + translateX(-50%), which centered this purely
-     on the header's own width, ignoring how much room .header-right's
-     nav buttons actually took — once a second nav button was added, the
-     title started rendering on top of it. Flexing it between the fixed-
-     width logo and right-side controls means it only ever occupies the
-     space actually left over, and shrinks properly at .header-title h1. */
+  /* The middle column of .header's 1fr/auto/1fr grid - sized to its own
+     content and therefore always sitting exactly in the page's true
+     center, regardless of how wide the logo or the right-side nav/help
+     controls happen to be (a flex "space-between" + centered-leftover
+     layout can't guarantee that once the two sides are different widths). */
   overflow: hidden;
   padding: 0 12px;
 }
@@ -82,6 +79,7 @@
 .header-logo {
   display: flex;
   align-items: center;
+  justify-self: start;
   flex-shrink: 0;
 }
 
@@ -136,6 +134,7 @@
 .header-right {
   display: flex;
   align-items: center;
+  justify-self: end;
   gap: 6px;
   flex-shrink: 0;
 }
@@ -189,174 +188,4 @@
   background: var(--bg-elevated);
   border-color: var(--primary);
   color: var(--primary);
-}
-
-/* ══════════════════════════════════════════════════════════
-   Location Search
-   ══════════════════════════════════════════════════════════ */
-.geo-search {
-  position: relative;
-  width: 240px;
-  flex-shrink: 0;
-}
-
-.geo-search__input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-  padding: 0 8px;
-  height: 30px;
-  transition: border-color var(--transition), box-shadow var(--transition);
-}
-
-.geo-search__input-wrap:focus-within,
-.geo-search__input-wrap--open {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
-}
-
-.geo-search__icon {
-  color: var(--text-muted);
-  flex-shrink: 0;
-  pointer-events: none;
-}
-
-.geo-search__input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text-primary);
-  font-size: 12px;
-  min-width: 0;
-}
-
-.geo-search__input::placeholder {
-  color: var(--text-muted);
-  font-size: 11.5px;
-}
-
-.geo-search__clear {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  transition: color var(--transition);
-}
-
-.geo-search__clear:hover {
-  color: var(--text-primary);
-}
-
-/* Spinner */
-.geo-search__spinner {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border: 2px solid var(--border-default);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: geo-spin 0.7s linear infinite;
-  flex-shrink: 0;
-}
-
-@keyframes geo-spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Dropdown */
-.geo-search__dropdown {
-  position: absolute;
-  top: calc(100% + 5px);
-  right: 0;
-  width: 340px;
-  background: var(--bg-elevated, #1a1f2e);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
-  list-style: none;
-  margin: 0;
-  padding: 4px 0;
-  z-index: 900;
-  max-height: 320px;
-  overflow-y: auto;
-}
-
-.geo-search__dropdown::-webkit-scrollbar {
-  width: 4px;
-}
-.geo-search__dropdown::-webkit-scrollbar-track {
-  background: transparent;
-}
-.geo-search__dropdown::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 2px;
-}
-
-.geo-search__item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  cursor: pointer;
-  transition: background var(--transition);
-}
-
-.geo-search__item:hover,
-.geo-search__item--active {
-  background: rgba(56, 189, 248, 0.08);
-}
-
-.geo-search__item-icon {
-  color: var(--primary);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-}
-
-.geo-search__item-text {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.geo-search__item-name {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.geo-search__item-place {
-  font-size: 10.5px;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.geo-search__item-badge {
-  flex-shrink: 0;
-  font-size: 9.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--primary);
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  border-radius: 3px;
-  padding: 1px 5px;
 }
