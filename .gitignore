@@ -68,3 +68,8 @@ pybackend/temp/
 # Logs
 server.log
 pybackend.log
+
+# Presentation materials — not meant for a public repo
+presentation/
+Flood_simulation_speaking notes.docx
+Claude outputs/
