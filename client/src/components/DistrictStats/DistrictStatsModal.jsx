@@ -365,8 +365,8 @@ export default function DistrictStatsModal({ data, province, onClose, hasBuildin
             )}
             {hasVal(pop.total) && (
               <div className="ds-pop-total" style={{ '--gc': '#4fc3f7' }}>
-                <div className="ds-pop-total-lbl">Projected Population Total</div>
                 <div className="ds-pop-total-val">{fmt(pop.total)}</div>
+                <div className="ds-pop-total-lbl">Projected Population Total</div>
               </div>
             )}
             {kpis.map((k) => (
