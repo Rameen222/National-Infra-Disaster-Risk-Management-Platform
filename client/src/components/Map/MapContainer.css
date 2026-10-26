@@ -1092,7 +1092,7 @@
 /* ── Building Height Legend ───────────────────────────── */
 .building-legend {
   position: absolute;
-  bottom: 40px;
+  top: 16px;
   left: 16px;
   background: rgba(11, 17, 32, 0.92);
   border: 1px solid var(--border-default);
@@ -1105,13 +1105,34 @@
 }
 
 .building-legend-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
   font-size: 12px;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: 1px;
   text-transform: uppercase;
+  text-align: left;
   margin-bottom: 8px;
 }
+
+.building-legend--collapsed .building-legend-title { margin-bottom: 0; }
+
+.building-legend-chevron {
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: transform 0.15s ease;
+}
+
+.building-legend--collapsed .building-legend-chevron { transform: rotate(-90deg); }
 
 .building-legend-item {
   display: flex;

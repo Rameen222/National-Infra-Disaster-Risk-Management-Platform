@@ -36,7 +36,7 @@ function SecHead({ label, right }) {
   );
 }
 
-export default function NationalStatsPanel({ stats, onClose }) {
+export default function NationalStatsPanel({ stats, onClose, facilitiesSection }) {
   const { pos, onMouseDown } = useDrag(0, 0);
   const [maximized, setMaximized] = React.useState(false);
   if (!stats) return null;
@@ -144,6 +144,8 @@ export default function NationalStatsPanel({ stats, onClose }) {
             ))}
           </div>
         </section>
+
+        {facilitiesSection && <div className="ns-facilities">{facilitiesSection}</div>}
 
       </div>
     </div>

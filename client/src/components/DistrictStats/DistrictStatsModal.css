@@ -390,7 +390,8 @@
 /* Tinted heading bars so each infrastructure/population block reads as a
    visually separate component. */
 .ds-sechead--construction,
-.ds-sechead--age {
+.ds-sechead--age,
+.ds-sechead--facilities {
   color: #ffffff;
   padding: 6px 10px;
   border-bottom: none;
@@ -400,10 +401,12 @@
 }
 .ds-sechead--construction { --sh: #4fc3f7; --sh-bg: rgba(79, 195, 247, 0.16); }
 .ds-sechead--age          { --sh: #ab47bc; --sh-bg: rgba(171, 71, 188, 0.16); }
+.ds-sechead--facilities   { --sh: #26a69a; --sh-bg: rgba(38, 166, 154, 0.16); }
 
 /* Bright, legible count on the tinted heading bars */
 .ds-sechead--construction .ds-sechead-right,
-.ds-sechead--age .ds-sechead-right {
+.ds-sechead--age .ds-sechead-right,
+.ds-sechead--facilities .ds-sechead-right {
   color: #ffffff;
   font-weight: 700;
 }
@@ -628,6 +631,27 @@
   font-weight: 800;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
+}
+
+/* Infrastructure facilities: 2×2 grid of .ds-infra-card. Own spacing (not
+   .ds-scroll section's) so it lays out the same in the province panel. */
+.ds-facilities {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ds-facility-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+/* Odd card out (Road Network) takes the full last row. */
+.ds-facility-grid > .ds-infra-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.ds-infra-val--empty {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dim);
+  font-style: italic;
 }
 
 .ds-infra-pct {

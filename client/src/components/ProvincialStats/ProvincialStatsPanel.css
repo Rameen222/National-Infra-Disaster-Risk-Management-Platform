@@ -100,6 +100,8 @@
 }
 
 /* KPI grid */
+.ps-facilities { margin-top: 16px; }
+
 .ps-kpi-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

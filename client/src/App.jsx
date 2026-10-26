@@ -8,6 +8,7 @@ import Sidebar from './components/Sidebar/Sidebar';
 import DistrictTehsilSidebar from './components/Sidebar/DistrictTehsilSidebar';
 import MapContainer from './components/Map/MapContainer';
 import DistrictStatsModal from './components/DistrictStats/DistrictStatsModal';
+import InfraFacilitiesSection from './components/DistrictStats/InfraFacilitiesSection';
 import TehsilBuildingsPanel from './components/TehsilBuildings/TehsilBuildingsPanel';
 import EncroachmentModal from './components/Encroachment/EncroachmentModal';
 import FloodProjectionModal from './components/FloodProjection/FloodProjectionModal';
@@ -45,7 +46,8 @@ function App() {
   const [selectedDistrict, setSelectedDistrict] = React.useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
   const [districtsGeoJSON, setDistrictsGeoJSON] = React.useState(null);
-  const [isNationalView, setIsNationalView] = React.useState(false);
+  // The portal opens on the National view (same as clicking NATIONAL).
+  const [isNationalView, setIsNationalView] = React.useState(true);
   // Imperative "zoom to this" requests from the second sidebar's back
   // navigation (tehsil -> district -> province) — an array of {geometry}
   // or null. See MapContainer's mapFocusFeatures effect.
@@ -69,6 +71,12 @@ function App() {
   // the right dock's tehsil list). Drives the tehsil-specific hazard profile
   // pinned at the bottom of the right dock.
   const [selectedTehsil, setSelectedTehsil] = React.useState(null);
+  // Boundary of each tehsil the user has selected, keyed `${district}|${tehsil}`
+  // — scopes the right dock's facility counts to the selected tehsil.
+  const [tehsilGeometries, setTehsilGeometries] = React.useState({});
+  const rememberTehsilGeometry = (district, name, geometry) => {
+    if (district && name && geometry) setTehsilGeometries((m) => ({ ...m, [`${district}|${name}`]: geometry }));
+  };
   // Tehsil the user has drilled into in the second sidebar (DistrictTehsilSidebar).
   // Lifted here so a tehsil clicked on the map also lights up its row in that
   // sidebar (and vice-versa). null = no active tehsil.
@@ -79,7 +87,7 @@ function App() {
   const [statsModalData, setStatsModalData] = React.useState(null);
   const [statsModalProvince, setStatsModalProvince] = React.useState(null);
   const [showDistrictStats, setShowDistrictStats] = React.useState(false);
-  const [showNationalStats, setShowNationalStats] = React.useState(false);
+  const [showNationalStats, setShowNationalStats] = React.useState(true);
   const [showBuildings, setShowBuildings] = React.useState(false);
   const [buildingIndex, setBuildingIndex] = React.useState(null);
   const [activeBuildingDistrict, setActiveBuildingDistrict] = React.useState(null); // { districtKey }
@@ -366,6 +374,7 @@ function App() {
     const districtName = resolved?.name || props?.district || props?.DISTRICT || null;
     if (!districtName) return;
     setPendingTehsil({ district: districtName, name });
+    rememberTehsilGeometry(districtName, name, geometry);
     handleDistrictSelect(districtName);
     setSelectedTehsil(name);
     setActiveTehsilName(name);
@@ -641,6 +650,13 @@ function App() {
           infrastructure={infraForDistrict}
           activeTehsil={selectedTehsil}
           hazardProfile={tehsilHazardProfile}
+          facilitiesSection={
+            <InfraFacilitiesSection
+              district={statsModalData?.name}
+              tehsil={selectedTehsil}
+              tehsilGeometry={tehsilGeometries[`${statsModalData?.name}|${selectedTehsil}`]}
+            />
+          }
           tehsilsSection={selectedDistrictGeometry && (
             <TehsilBuildingsPanel
               key={`tb-${statsModalProvince}-${statsModalData?.name}`}
@@ -650,7 +666,10 @@ function App() {
               initialTehsil={pendingTehsil?.district === statsModalData?.name ? pendingTehsil?.name : undefined}
               onBuildingsGeoJSON={setTehsilBuildingsGeoJSON}
               onScenarioClipGeoJSON={setTehsilScenarioClipGeoJSON}
-              onTehsilActive={setSelectedTehsil}
+              onTehsilActive={(name, geometry) => {
+                setSelectedTehsil(name);
+                rememberTehsilGeometry(statsModalData?.name, name, geometry);
+              }}
             />
           )}
         />
@@ -681,12 +700,14 @@ function App() {
         <NationalStatsPanel
           stats={nationalStats}
           onClose={() => setShowNationalStats(false)}
+          facilitiesSection={<InfraFacilitiesSection national />}
         />
       )}
 
       {!showNationalStats && !showDistrictStats && selectedProvinceStats && (
         <ProvincialStatsPanel
           provinceData={selectedProvinceStats}
+          facilitiesSection={<InfraFacilitiesSection province={provinceLabel(selectedProvince)} />}
           onClose={() => setSelectedProvince(null)}
         />
       )}

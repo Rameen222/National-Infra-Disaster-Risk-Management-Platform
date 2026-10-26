@@ -73,3 +73,6 @@ pybackend.log
 presentation/
 Flood_simulation_speaking notes.docx
 Claude outputs/
+
+# Local .env backups (contain tokens / passwords)
+.env.bak*

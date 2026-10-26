@@ -1,6 +1,11 @@
 /**
  * Registry of optional infrastructure overlay layers (Rivers, Roads,
- * Hospitals, Schools, Dams, …). Each entry is self-contained: point it at a
+ * Hospitals, Schools, Dams, …). Rivers, roads, NHA highways, health facilities,
+ * schools and dams come live from the GCOP GeoServer through the Python
+ * backend (/pyapi/infra/…, see pybackend/infra_counts.py): roads as
+ * GeoServer-drawn image tiles, points as GeoJSON.
+ *
+ * Each entry is self-contained: point it at a
  * GeoJSON file (or, later, a GeoServer WFS typeName — MapContainer's loader
  * treats `source` as a plain URL either way) and it gets a toggle chip in
  * the map's top toolbar with no other code changes.
@@ -19,42 +24,62 @@ export const INFRA_LAYERS = [
   {
     id: 'rivers',
     label: 'Rivers',
-    type: 'line', // LineString / MultiLineString — required property: `name`
-    source: '/infra/rivers.geojson',
+    // GeoServer gcop:Pak_Rivers, drawn by GeoServer as image tiles.
+    type: 'raster',
+    tiles: { url: '/pyapi/infra/wms?layer=rivers&bbox={bbox-epsg-3857}', minzoom: 0 },
     defaultVisible: false,
-    style: { lineColor: '#38bdf8', lineWidth: 1.5, lineOpacity: 0.9 },
+    style: { lineColor: '#38bdf8', rasterOpacity: 1 },
   },
   {
     id: 'roads',
     label: 'Roads',
-    type: 'line', // LineString / MultiLineString — required properties: `name`, `road_class`
-    source: '/infra/roads.geojson',
+    // OSM roads (GeoServer gcop:osm_roads_), drawn by GeoServer as image
+    // tiles in the portal's colour (pybackend /pyapi/infra/wms) — nothing is
+    // downloaded. Minor roads appear from ~zoom 12.
+    type: 'raster',
+    tiles: { url: '/pyapi/infra/wms?layer=roads&bbox={bbox-epsg-3857}', minzoom: 5 },
     defaultVisible: false,
-    style: { lineColor: '#d4a017', lineWidth: 1.2, lineOpacity: 0.85 },
+    // Near-white — outside the building-height palette. lineColor = chip colour.
+    style: { lineColor: '#f1f5f9', rasterOpacity: 0.9 },
+  },
+  {
+    id: 'nha_roads',
+    label: 'NHA Highways',
+    // GeoServer gcop:Roads_NHA_QC (motorways, national highways), image tiles.
+    type: 'raster',
+    tiles: { url: '/pyapi/infra/wms?layer=nha_roads&bbox={bbox-epsg-3857}', minzoom: 4 },
+    defaultVisible: false,
+    // Magenta, wider than OSM roads — outside the building-height palette.
+    style: { lineColor: '#ff4fd8', rasterOpacity: 1 },
   },
   {
     id: 'health_facilities',
     label: 'Health Facilities',
-    type: 'circle', // Point — required properties: `name`, `type`
-    source: '/infra/health_facilities.geojson',
+    // GeoServer gcop:Pakistan_Health_Facilities — public and private
+    // (properties: `Name`, `Category`, `Sub_Cat`, `Gov_Pvt`).
+    type: 'symbol',
+    source: '/pyapi/infra/layer/health_facilities',
     defaultVisible: false,
-    style: { circleColor: '#ef4444', circleRadius: 4, circleOpacity: 0.9 },
+    // Icon badge drawn at runtime (utils/infraIcons.js) so it can't be
+    // mistaken for a building-height colour.
+    style: { iconGlyph: 'hospital', iconColor: '#dc2626', iconSizeStops: [[11, 0.7], [14, 1]] },
   },
   {
     id: 'schools',
     label: 'Schools',
-    type: 'circle', // Point — required properties: `name`, `level`
-    source: '/infra/schools.geojson',
+    type: 'symbol', // GeoServer gcop:Schools_QC — properties: `schoolname`, `level`, `gender`
+    source: '/pyapi/infra/layer/schools',
     defaultVisible: false,
-    style: { circleColor: '#3b82f6', circleRadius: 4, circleOpacity: 0.9 },
+    style: { iconGlyph: 'school', iconColor: '#2563eb', iconSizeStops: [[11, 0.7], [14, 1]] },
   },
   {
     id: 'dams',
     label: 'Dams',
-    type: 'circle', // Point (or Polygon, see note) — required property: `name`
-    source: '/infra/dams.geojson',
+    type: 'circle', // GeoServer gcop:Dams_QC — properties: `name_of_da`, `height`
+    source: '/pyapi/infra/layer/dams',
     defaultVisible: false,
-    style: { circleColor: '#a855f7', circleRadius: 5, circleOpacity: 0.9 },
+    // Cyan — outside the building-height palette (blue/green/yellow/orange/red/purple).
+    style: { circleColor: '#00e5ff', circleRadius: 5, circleOpacity: 0.95 },
   },
   {
     id: 'affected_houses',

@@ -373,6 +373,68 @@
   gap: 6px;
 }
 
+.gcop-impact {
+  padding: 9px 11px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.gcop-impact__title {
+  font-size: 10.5px;
+  color: #94a3b8;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+.gcop-impact__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.gcop-impact__tile {
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 2px solid var(--impact-color);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.gcop-impact__val {
+  font-size: 15px;
+  font-weight: 800;
+  color: #f1f5f9;
+  font-variant-numeric: tabular-nums;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+}
+.gcop-impact__unit {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-left: 2px;
+}
+.gcop-impact__na {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+.gcop-impact__lbl {
+  font-size: 9.5px;
+  color: #94a3b8;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.gcop-impact__msg {
+  font-size: 11px;
+  color: #64748b;
+  font-style: italic;
+}
+
 .gcop-counts-list {
   list-style: none;
   margin: 0;

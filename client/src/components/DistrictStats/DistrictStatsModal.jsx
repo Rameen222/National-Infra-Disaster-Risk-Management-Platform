@@ -35,7 +35,7 @@ function NoData({ message }) {
 // structure detail, and a bottom bar for demographic detail. Same data,
 // same computations, same props as before — only where each piece renders
 // has changed.
-export default function DistrictStatsModal({ data, province, onClose, hasBuildingData, onToggleBuildings, buildingsActive, buildingsLoading, buildingsLabel = 'Buildings', buildingCount, buildingError, onOpenEncroachment, nullahsForDistrict, unmatchedNullahDistricts, infrastructure, unitKind = 'District', bodyOverride, tehsilsSection, activeTehsil, hazardProfile }) {
+export default function DistrictStatsModal({ data, province, onClose, hasBuildingData, onToggleBuildings, buildingsActive, buildingsLoading, buildingsLabel = 'Buildings', buildingCount, buildingError, onOpenEncroachment, nullahsForDistrict, unmatchedNullahDistricts, infrastructure, unitKind = 'District', bodyOverride, tehsilsSection, facilitiesSection, activeTehsil, hazardProfile }) {
   const [expandedUnmatched, setExpandedUnmatched] = React.useState(null);
   // Reset the expanded unmatched-district whenever the panel switches district
   React.useEffect(() => { setExpandedUnmatched(null); }, [data?.name]);
@@ -216,6 +216,8 @@ export default function DistrictStatsModal({ data, province, onClose, hasBuildin
               </div>
             </section>
           )}
+
+          {!bodyOverride && facilitiesSection}
 
           {(nullahsForDistrict || (unmatchedNullahDistricts && unmatchedNullahDistricts.length > 0)) && (
             <section className="ds-sec-3 ds-nullahs">

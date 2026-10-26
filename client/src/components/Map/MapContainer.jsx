@@ -4,6 +4,10 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MAP_CONFIG, PROVINCES } from '../../config/mapConfig';
 import { INFRA_LAYERS } from '../../config/infraLayers';
+import { drawGlyphBadge, ICON_PIXEL_RATIO } from '../../utils/infraIcons';
+
+// Province outlines (GeoServer gcop:provincial_boundary, via the backend).
+const PROVINCES_URL = '/pyapi/infra/boundary/provinces';
 import { buildingTileUrl } from '../../utils/buildingData';
 import StyleModal from './StyleModal';
 import useDrag from '../../hooks/useDrag';
@@ -45,6 +49,81 @@ function floodLayerIds(year) {
     }));
   }
   return [{ fillId: `flood-${year}-fill`, lineId: `flood-${year}-line` }];
+}
+
+// Map layer ids for an infra overlay (config/infraLayers.js). Tiled line
+// layers get one map layer per tile source-layer.
+function infraLayerIds(layer) {
+  if (layer.type === 'fill') return [`infra-${layer.id}-fill`, `infra-${layer.id}-line`];
+  if (layer.type === 'raster') return [`infra-${layer.id}-raster`];
+  if (layer.tiles?.sourceLayers) return layer.tiles.sourceLayers.map((sl) => `infra-${layer.id}-line-${sl}`);
+  // Glyph layers: dots when zoomed out, icons when zoomed in (see loadInfraLayers).
+  if (layer.style.iconGlyph) return [`infra-${layer.id}-dot`, `infra-${layer.id}-symbol`];
+  return [`infra-${layer.id}-${layer.type}`];
+}
+
+const GLYPH_ICON_MINZOOM = 11;
+
+// Pakistan's extent (pakistan_districts.geojson bounds) — the national view.
+const PAKISTAN_BOUNDS = [[60.872, 23.811], [79.307, 37.091]];
+
+// Stats panels drawn on top of the map (fixed / absolute overlays, not flex
+// siblings, so the map canvas runs underneath them).
+const MAP_OVERLAY_SELECTORS = '.ps-panel, .ns-panel, .ds-dock-right, .ds-dock-bottom';
+
+// fitBounds padding that keeps the target inside the part of the map that
+// isn't covered by an overlay panel, so a selection is centred in what the
+// user can actually see. `base` is the usual margin on every side.
+function visiblePadding(map, base) {
+  const pad = { top: base, right: base, bottom: base, left: base };
+  const c = map.getCanvas().getBoundingClientRect();
+  document.querySelectorAll(MAP_OVERLAY_SELECTORS).forEach((el) => {
+    const r = el.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    if (r.right <= c.left || r.left >= c.right || r.bottom <= c.top || r.top >= c.bottom) return;
+    // Wide overlays are bars along the top / bottom edge, tall ones are
+    // side panels.
+    if (r.width >= r.height) {
+      if (r.bottom >= c.bottom - 24) pad.bottom = Math.max(pad.bottom, c.bottom - r.top + base);
+      else if (r.top <= c.top + 24) pad.top = Math.max(pad.top, r.bottom - c.top + base);
+    } else if (r.right >= c.right - 24) {
+      pad.right = Math.max(pad.right, c.right - r.left + base);
+    } else if (r.left <= c.left + 24) {
+      pad.left = Math.max(pad.left, r.right - c.left + base);
+    }
+  });
+  // Overlays leave too little room (narrow window) — fall back to the plain margin.
+  if (c.width - pad.left - pad.right < 120 || c.height - pad.top - pad.bottom < 120) {
+    return base;
+  }
+  return pad;
+}
+
+// fitBounds into the visible part of the map (see visiblePadding). Panels
+// that open with a selection — e.g. the district demographics bar, or the
+// national stats panel once its data has loaded — can appear after the fit
+// starts, so for up to 10 s the covered area is re-checked and the fit
+// redone if it changed. A newer fit or the user moving the map cancels it.
+function fitVisible(map, bounds, base, opts = {}) {
+  const token = {};
+  map.__fitToken = token;
+  let pad = visiblePadding(map, base);
+  map.fitBounds(bounds, { ...opts, padding: pad });
+  let userMoved = false;
+  const onUser = (e) => { if (e.originalEvent) userMoved = true; };
+  map.on('movestart', onUser);
+  const start = Date.now();
+  const check = () => {
+    if (map.__fitToken !== token || userMoved) { map.off('movestart', onUser); return; }
+    const next = visiblePadding(map, base);
+    if (JSON.stringify(next) !== JSON.stringify(pad)) {
+      pad = next;
+      map.fitBounds(bounds, { ...opts, padding: pad });
+    }
+    if (Date.now() - start < 10000) setTimeout(check, 250);
+    else map.off('movestart', onUser);
+  };
+  setTimeout(check, 250);
 }
 
 // Compute a [[minLng, minLat], [maxLng, maxLat]] bounding box from an array of GeoJSON features
@@ -127,6 +206,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
   useEffect(() => { selectedProvinceRef.current = selectedProvince; }, [selectedProvince]);
   const [activeStyle, setActiveStyle] = useState(MAP_CONFIG.defaultStyle);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [legendCollapsed, setLegendCollapsed] = useState(false);
   const [showLabels, setShowLabels] = useState(false);
   const [showProvinceLabels, setShowProvinceLabels] = useState(false);
   const [showDistrictLabels, setShowDistrictLabels] = useState(true);
@@ -196,11 +276,20 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     strokeWidth: 4,
   });
 
-  // Compute province centroid points from districts GeoJSON for the province label layer
+  // Province outlines from GeoServer, for the province label layer.
+  const [provincesGeoJSON, setProvincesGeoJSON] = useState(null);
+  useEffect(() => {
+    fetch(PROVINCES_URL)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then(setProvincesGeoJSON)
+      .catch((err) => console.error('[provinces] GeoServer outlines failed:', err.message));
+  }, []);
+
+  // Compute province centroid points (bbox centres) for the province label layer
   const provinceLabelsGeoJSON = useMemo(() => {
-    if (!districtsGeoJSON) return null;
+    if (!provincesGeoJSON) return null;
     const provinceFeatures = {};
-    districtsGeoJSON.features.forEach((f) => {
+    provincesGeoJSON.features.forEach((f) => {
       const prov = f.properties.province;
       if (!provinceFeatures[prov]) provinceFeatures[prov] = [];
       provinceFeatures[prov].push(f);
@@ -216,7 +305,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
         };
       }),
     };
-  }, [districtsGeoJSON]);
+  }, [provincesGeoJSON]);
 
   // Keep ref in sync for access inside style.load callbacks
   useEffect(() => { provinceLabelsGeoJSONRef.current = provinceLabelsGeoJSON; }, [provinceLabelsGeoJSON]);
@@ -293,7 +382,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
       (f) => f.properties.province === province.geojsonProvince
     );
     if (!features.length) return;
-    mapRef.current.fitBounds(getBbox(features), { padding: 40, duration: 1500 });
+    fitVisible(mapRef.current, getBbox(features), 40, { duration: 1500 });
   }, [selectedProvince, districtsGeoJSON]);
 
   // Fit map to selected district
@@ -303,7 +392,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
       (f) => f.properties.name === selectedDistrict
     );
     if (!features.length) return;
-    mapRef.current.fitBounds(getBbox(features), { padding: 60, duration: 1500 });
+    fitVisible(mapRef.current, getBbox(features), 60, { duration: 1500 });
   }, [selectedDistrict, districtsGeoJSON]);
 
   // Imperative re-focus requested by the second sidebar's back navigation
@@ -315,7 +404,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
   // !== the previous one, so this fires on every call, including repeats).
   useEffect(() => {
     if (!mapRef.current || !mapFocusFeatures || !mapFocusFeatures.length) return;
-    mapRef.current.fitBounds(getBbox(mapFocusFeatures), { padding: 60, duration: 1200 });
+    fitVisible(mapRef.current, getBbox(mapFocusFeatures), 60, { duration: 1200 });
   }, [mapFocusFeatures]);
 
   // Fly to geocoded search result
@@ -323,7 +412,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     if (!searchResult || !mapRef.current || !mapLoaded) return;
     const map = mapRef.current;
     if (searchResult.bbox) {
-      map.fitBounds(searchResult.bbox, { padding: 60, duration: 1400 });
+      fitVisible(map, searchResult.bbox, 60, { duration: 1400 });
     } else {
       const zoom = searchResult.placeType === 'region' ? 7
         : searchResult.placeType === 'district' ? 9
@@ -408,13 +497,15 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     });
   };
 
-  // Load Pakistan boundary GeoJSON
+  // Load Pakistan boundary (province outlines) from GeoServer, via the backend
+  // (gcop:provincial_boundary, see pybackend/infra_counts.py). Features carry
+  // `province` with the same names as pakistan_districts.geojson.
   const loadPakistanBoundary = (map) => {
     const s = layerStyleRef.current;
     const vis = s.visible ? 'visible' : 'none';
     map.addSource('pakistan-boundary', {
       type: 'geojson',
-      data: '/pakistan_boundary_official.geojson',
+      data: PROVINCES_URL,
     });
 
     map.addLayer({
@@ -619,19 +710,55 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     INFRA_LAYERS.forEach((layer) => {
       const srcId = `infra-${layer.id}-src`;
       if (map.getSource(srcId)) return;
-      map.addSource(srcId, { type: 'geojson', data: layer.source });
+      if (layer.type === 'raster') {
+        // Image tiles drawn by GeoServer (via the backend). Tile URLs must be
+        // absolute for Mapbox's worker.
+        map.addSource(srcId, {
+          type: 'raster',
+          tiles: [`${window.location.origin}${layer.tiles.url}`],
+          tileSize: 256,
+          minzoom: layer.tiles.minzoom ?? 0,
+        });
+        map.addLayer({
+          id: `infra-${layer.id}-raster`,
+          type: 'raster',
+          source: srcId,
+          minzoom: layer.tiles.minzoom ?? 0,
+          layout: { visibility: 'none' },
+          paint: { 'raster-opacity': layer.style.rasterOpacity ?? 1, 'raster-fade-duration': 0 },
+        });
+        return;
+      }
+      if (layer.tiles) {
+        // Tile URLs must be absolute for Mapbox's worker.
+        map.addSource(srcId, {
+          type: 'vector',
+          tiles: [`${window.location.origin}${layer.tiles.url}`],
+          minzoom: layer.tiles.minzoom,
+          maxzoom: layer.tiles.maxzoom,
+        });
+      } else {
+        map.addSource(srcId, { type: 'geojson', data: layer.source });
+      }
 
       if (layer.type === 'line') {
-        map.addLayer({
-          id: `infra-${layer.id}-line`,
-          type: 'line',
-          source: srcId,
-          layout: { visibility: 'none' },
-          paint: {
-            'line-color': layer.style.lineColor,
-            'line-width': layer.style.lineWidth,
-            'line-opacity': layer.style.lineOpacity,
-          },
+        const ids = infraLayerIds(layer);
+        (layer.tiles?.sourceLayers || [null]).forEach((sourceLayer, i) => {
+          const stops = sourceLayer && layer.style.lineWidthStops?.[sourceLayer];
+          map.addLayer({
+            id: ids[i],
+            type: 'line',
+            source: srcId,
+            ...(sourceLayer && { 'source-layer': sourceLayer }),
+            layout: { visibility: 'none', 'line-cap': 'round', 'line-join': 'round' },
+            paint: {
+              'line-color': layer.style.lineColor,
+              'line-width': stops
+                ? ['interpolate', ['linear'], ['zoom'], ...stops.flat()]
+                : layer.style.lineWidth,
+              'line-opacity': layer.style.lineOpacity,
+            },
+          });
         });
       } else if (layer.type === 'circle') {
         map.addLayer({
@@ -648,7 +775,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
           },
         });
       } else if (layer.type === 'symbol') {
-        const customIconName = layer.style.iconUrl ? `infra-icon-${layer.id}` : null;
+        const customIconName = (layer.style.iconUrl || layer.style.iconGlyph) ? `infra-icon-${layer.id}` : null;
 
         // customIconLoaded reflects whether the custom image actually made it
         // into the style (map.addImage succeeded) — if it didn't (bad URL,
@@ -672,10 +799,12 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
                 // registry entry for why (not the usual convention).
                 ? ['interpolate', ['linear'], ['zoom'], ...layer.style.iconSizeStops.flat()]
                 : (layer.style.iconSize ?? 1.1),
-              'icon-anchor': useCustom ? 'bottom' : 'center',
+              // Pins sit on their point; round glyph badges centre on it.
+              'icon-anchor': useCustom && !layer.style.iconGlyph ? 'bottom' : 'center',
               'icon-allow-overlap': true,
               'icon-ignore-placement': true,
             },
+            ...(layer.style.iconGlyph && { minzoom: GLYPH_ICON_MINZOOM }),
             // Custom icons bake their color into the raster image and aren't
             // loaded as SDF, so icon-color would be a no-op for them — only
             // apply it to the maki-sprite fallback.
@@ -689,7 +818,31 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
           if (layer.id === 'affected_houses') attachAffectedHousesPopup(map, `infra-${layer.id}-symbol`);
         };
 
-        if (customIconName && !map.hasImage(customIconName)) {
+        if (layer.style.iconGlyph) {
+          // Schools / health facilities number in the tens of thousands, so
+          // zoomed out they're small dots in the glyph's colour; the icon
+          // badges take over once zoomed in far enough to read them.
+          if (!map.getLayer(`infra-${layer.id}-dot`)) {
+            map.addLayer({
+              id: `infra-${layer.id}-dot`,
+              type: 'circle',
+              source: srcId,
+              maxzoom: GLYPH_ICON_MINZOOM,
+              layout: { visibility: 'none' },
+              paint: {
+                'circle-color': layer.style.iconColor,
+                'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 2, 10, 3.5],
+                'circle-stroke-color': '#ffffff',
+                'circle-stroke-width': 1,
+              },
+            });
+          }
+          if (!map.hasImage(customIconName)) {
+            map.addImage(customIconName, drawGlyphBadge(layer.style.iconGlyph, layer.style.iconColor),
+              { pixelRatio: ICON_PIXEL_RATIO });
+          }
+          addSymbolLayer(true);
+        } else if (customIconName && !map.hasImage(customIconName)) {
           map.loadImage(layer.style.iconUrl, (err, image) => {
             let loaded = false;
             if (!err && image) {
@@ -825,7 +978,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
       );
       if (feat) {
         const bbox = getBbox([feat]);
-        map.fitBounds(bbox, { padding: 60, duration: 800 });
+        fitVisible(map, bbox, 60, { duration: 800 });
       }
     }
   }, [activeBuildingDistrict, showBuildings, mapLoaded]);
@@ -1112,7 +1265,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     // Fit map to exposed streams so the user immediately sees what's loaded.
     try {
       const bbox = getBbox(exposureGeoJSON.features);
-      map.fitBounds(bbox, { padding: 80, duration: 1200, maxZoom: 9 });
+      fitVisible(map, bbox, 80, { duration: 1200, maxZoom: 9 });
     } catch (err) {
       console.warn('[exposure] could not fit bounds:', err);
     }
@@ -1164,7 +1317,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
 
     try {
       const bbox = getBbox(gcopGeoJSON.features);
-      map.fitBounds(bbox, { padding: 60, duration: 1200, maxZoom: 9 });
+      fitVisible(map, bbox, 60, { duration: 1200, maxZoom: 9 });
     } catch (err) {
       console.warn('[gcop] fit bounds skipped:', err);
     }
@@ -1217,8 +1370,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     try {
       const bbox = getBbox(simexBuildingsGeoJSON.features);
       // Pass pitch + bearing directly into fitBounds so they aren't reset
-      map.fitBounds(bbox, {
-        padding: 60,
+      fitVisible(map, bbox, 60, {
         duration: 1400,
         maxZoom: 16,
         pitch: 55,
@@ -1276,7 +1428,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
 
     try {
       const bbox = getBbox(tehsilBuildingsGeoJSON.features);
-      map.fitBounds(bbox, { padding: 60, duration: 1400, maxZoom: 16, pitch: 55, bearing: -15 });
+      fitVisible(map, bbox, 60, { duration: 1400, maxZoom: 16, pitch: 55, bearing: -15 });
       isAutoAnimatingRef.current = true;
       map.once('moveend', () => { isAutoAnimatingRef.current = false; });
     } catch (err) {
@@ -1491,7 +1643,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
           'match', ['get', 'province'],
           'Punjab', '#FF6B6B',
           'Sindh', '#4ECDC4',
-          'Khyber Pakhtunkhwa', '#FFD93D',
+          'Khyber Pakhtunkhwa', '#A3E635',
           'Balochistan', '#6C5CE7',
           'Gilgit Baltistan', '#00B894',
           'Azad Kashmir', '#FD79A8',
@@ -1512,7 +1664,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
           'match', ['get', 'province'],
           'Punjab', '#FF6B6B',
           'Sindh', '#4ECDC4',
-          'Khyber Pakhtunkhwa', '#FFD93D',
+          'Khyber Pakhtunkhwa', '#A3E635',
           'Balochistan', '#6C5CE7',
           // High-contrast orange — the old teal blended into the basemap
           'Gilgit Baltistan', '#FF8C00',
@@ -1578,18 +1730,19 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
       paint: { 'fill-color': '#000000', 'fill-opacity': 0 },
     });
 
-    // National view — all provinces colored distinctly (hidden by default)
+    // National view — all provinces colored distinctly (hidden by default).
+    // Province outlines from GeoServer (the 'pakistan-boundary' source).
     map.addLayer({
       id: 'national-provinces-fill',
       type: 'fill',
-      source: 'pakistan-districts',
+      source: 'pakistan-boundary',
       layout: { visibility: 'none' },
       paint: {
         'fill-color': [
           'match', ['get', 'province'],
           'Punjab', '#FF6B6B',
           'Sindh', '#4ECDC4',
-          'Khyber Pakhtunkhwa', '#FFD93D',
+          'Khyber Pakhtunkhwa', '#A3E635',
           'Balochistan', '#6C5CE7',
           'Gilgit Baltistan', '#00B894',
           'Azad Kashmir', '#FD79A8',
@@ -1603,14 +1756,14 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     map.addLayer({
       id: 'national-provinces-line',
       type: 'line',
-      source: 'pakistan-districts',
+      source: 'pakistan-boundary',
       layout: { visibility: 'none' },
       paint: {
         'line-color': [
           'match', ['get', 'province'],
           'Punjab', '#FF6B6B',
           'Sindh', '#4ECDC4',
-          'Khyber Pakhtunkhwa', '#FFD93D',
+          'Khyber Pakhtunkhwa', '#A3E635',
           'Balochistan', '#6C5CE7',
           'Gilgit Baltistan', '#00B894',
           'Azad Kashmir', '#FD79A8',
@@ -1947,14 +2100,14 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     if (isNationalView) {
       map.setLayoutProperty('national-provinces-fill', 'visibility', 'visible');
       map.setLayoutProperty('national-provinces-line', 'visibility', 'visible');
-      if (districtsGeoJSON) {
-        map.fitBounds(getBbox(districtsGeoJSON.features), { padding: 30, duration: 1500 });
-      }
+      // Pakistan's extent is fixed, so fit straight away — waiting for the
+      // (very large) districts file left the map off-centre on page load.
+      fitVisible(map, PAKISTAN_BOUNDS, 30, { duration: 1500 });
     } else {
       map.setLayoutProperty('national-provinces-fill', 'visibility', 'none');
       map.setLayoutProperty('national-provinces-line', 'visibility', 'none');
     }
-  }, [isNationalView, mapLoaded, districtsGeoJSON]);
+  }, [isNationalView, mapLoaded]);
 
   // Load province labels layer once both the map and GeoJSON are ready
   useEffect(() => {
@@ -2003,10 +2156,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
 
   const moveInfraAboveBuildings = (map) => {
     INFRA_LAYERS.forEach((layer) => {
-      const ids = layer.type === 'fill'
-        ? [`infra-${layer.id}-fill`, `infra-${layer.id}-line`]
-        : [`infra-${layer.id}-${layer.type}`];
-      ids.forEach((id) => {
+      infraLayerIds(layer).forEach((id) => {
         if (map.getLayer(id)) map.moveLayer(id);
       });
     });
@@ -2021,10 +2171,7 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
     INFRA_LAYERS.forEach((layer) => {
       const entry = infraLayers.find((l) => l.id === layer.id);
       const vis = entry?.visible ? 'visible' : 'none';
-      const ids = layer.type === 'fill'
-        ? [`infra-${layer.id}-fill`, `infra-${layer.id}-line`]
-        : [`infra-${layer.id}-${layer.type}`];
-      ids.forEach((id) => {
+      infraLayerIds(layer).forEach((id) => {
         if (!map.getLayer(id)) return;
         map.setLayoutProperty(id, 'visibility', vis);
         if (vis === 'visible') map.moveLayer(id);
@@ -2386,15 +2533,24 @@ function MapContainer({ selectedProvince, selectedDistrict, sidebarCollapsed, on
 
         {/* Building height legend — shown for regular, encroached, or SIMEX buildings */}
         {((showBuildings && activeBuildingDistrict) || encroachedMapDistrict || simexBuildingsGeoJSON?.features?.length > 0 || tehsilBuildingsGeoJSON?.features?.length > 0) && (
-          <div className="building-legend">
-            <div className="building-legend-title">
-              {simexBuildingsGeoJSON?.features?.length > 0
-                ? 'Buildings Inside Scenario'
-                : tehsilBuildingsGeoJSON?.features?.length > 0
-                  ? 'Buildings in Tehsil'
-                  : 'Building Height'}
-            </div>
-            {BUILDING_HEIGHT_COLORS.map(([, color, label]) => (
+          <div className={`building-legend${legendCollapsed ? ' building-legend--collapsed' : ''}`}>
+            <button
+              type="button"
+              className="building-legend-title"
+              onClick={() => setLegendCollapsed((c) => !c)}
+              aria-expanded={!legendCollapsed}
+              title={legendCollapsed ? 'Expand legend' : 'Collapse legend'}
+            >
+              <span>
+                {simexBuildingsGeoJSON?.features?.length > 0
+                  ? 'Buildings Inside Scenario'
+                  : tehsilBuildingsGeoJSON?.features?.length > 0
+                    ? 'Buildings in Tehsil'
+                    : 'Building Height'}
+              </span>
+              <span className="building-legend-chevron" aria-hidden="true">▾</span>
+            </button>
+            {!legendCollapsed && BUILDING_HEIGHT_COLORS.map(([, color, label]) => (
               <div key={label} className="building-legend-item">
                 <span className="building-legend-swatch" style={{ background: color }} />
                 <span className="building-legend-label">{label}</span>

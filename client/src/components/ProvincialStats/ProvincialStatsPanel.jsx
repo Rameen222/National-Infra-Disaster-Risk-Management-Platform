@@ -12,7 +12,7 @@ const fmtK = (n) => {
 // (.ds-dock-right / .ps-panel share the same position/size), so the right
 // side of the screen behaves identically whether a province or a district
 // is selected.
-export default function ProvincialStatsPanel({ provinceData, onClose }) {
+export default function ProvincialStatsPanel({ provinceData, onClose, facilitiesSection }) {
   if (!provinceData) return null;
   const { name, population, officialStats: os } = provinceData;
 
@@ -55,6 +55,8 @@ export default function ProvincialStatsPanel({ provinceData, onClose }) {
             </div>
           ))}
         </div>
+
+        {facilitiesSection && <div className="ps-facilities">{facilitiesSection}</div>}
       </div>
     </div>
   );

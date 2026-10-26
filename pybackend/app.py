@@ -12,6 +12,7 @@ import json
 import struct
 import pathlib
 import threading
+import time
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -2245,6 +2246,141 @@ def buildings_count_in_geometry():
     return jsonify(status="processing", task_id=task_id, progress=0)
 
 
+# Infrastructure from the GCOP GeoServer (schools, health facilities, dams,
+# NHA highways, OSM roads) — see infra_counts.py. Map layers and school /
+# health / dam counts are live from GeoServer at every level; road km is the
+# one stored result (data/infra_counts.json, Pakistan → tehsil).
+
+# GeoServer draws the line layers in the portal's colours (SLD_BODY), so
+# nothing is downloaded or tiled on our side. Minor OSM roads only appear
+# zoomed in (scale ≤ 1:150k ≈ zoom 12) to keep national views light.
+_INFRA_SLD = {
+    "roads": """<Rule><ogc:Filter><ogc:Or>{major}</ogc:Or></ogc:Filter>
+      <LineSymbolizer><Stroke><CssParameter name="stroke">#f1f5f9</CssParameter>
+      <CssParameter name="stroke-width">1.6</CssParameter><CssParameter name="stroke-opacity">0.9</CssParameter></Stroke></LineSymbolizer></Rule>
+      <Rule><ElseFilter/><MaxScaleDenominator>150000</MaxScaleDenominator>
+      <LineSymbolizer><Stroke><CssParameter name="stroke">#f1f5f9</CssParameter>
+      <CssParameter name="stroke-width">0.8</CssParameter><CssParameter name="stroke-opacity">0.8</CssParameter></Stroke></LineSymbolizer></Rule>""".replace(
+        "{major}", "".join(
+            f"<ogc:PropertyIsEqualTo><ogc:PropertyName>highway</ogc:PropertyName><ogc:Literal>{c}</ogc:Literal></ogc:PropertyIsEqualTo>"
+            for c in ("motorway", "motorway_link", "primary", "primary_link", "secondary", "secondary_link"))),
+    "nha_roads": """<Rule><LineSymbolizer><Stroke><CssParameter name="stroke">#ff4fd8</CssParameter>
+      <CssParameter name="stroke-width">2.5</CssParameter></Stroke></LineSymbolizer></Rule>""",
+    "rivers": """<Rule><LineSymbolizer><Stroke><CssParameter name="stroke">#38bdf8</CssParameter>
+      <CssParameter name="stroke-width">2</CssParameter><CssParameter name="stroke-opacity">0.9</CssParameter></Stroke></LineSymbolizer></Rule>""",
+}
+
+
+def _infra_sld(name, type_name):
+    return ('<?xml version="1.0" encoding="UTF-8"?><StyledLayerDescriptor version="1.0.0" '
+            'xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc">'
+            f'<NamedLayer><Name>{type_name}</Name><UserStyle><Name>portal</Name><FeatureTypeStyle>'
+            f'{_INFRA_SLD[name]}</FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>')
+
+
+@app.route("/pyapi/infra/counts", methods=["POST"])
+def infra_counts_in_geometry():
+    """Schools / health facilities / dams inside any geometry, counted live by
+    GeoServer (tehsils, SIMEX / GCOP exposure footprints). With `district` +
+    `tehsil`, the tehsil's stored road km are added."""
+    import infra_counts
+    body = request.get_json(silent=True) or {}
+    geom = _geom_payload_to_shapely(body.get("geometry"))
+    if geom is None or geom.is_empty:
+        return jsonify(error="geometry is required"), 400
+    out = infra_counts.counts_live(geom)
+    if body.get("tehsil"):
+        stored = infra_counts.stored_tehsil(body.get("district"), body.get("tehsil")) or {}
+        for k in infra_counts.ROAD_KEYS:
+            out[k] = stored.get(k)
+    return jsonify(out)
+
+
+@app.route("/pyapi/infra/area")
+def infra_area():
+    """Pakistan / a province / a district: live school / health / dam counts
+    + stored road km. ?level=national|province|district&name=…"""
+    import infra_counts
+    level = request.args.get("level", "")
+    if level not in ("national", "province", "district"):
+        return jsonify(error="level must be national, province or district"), 400
+    return jsonify(infra_counts.area_counts(level, request.args.get("name")))
+
+
+@app.route("/pyapi/infra/layer/<name>")
+def infra_layer(name):
+    """A point layer as GeoJSON, streamed straight from GeoServer."""
+    import infra_counts
+    spec = infra_counts.POINT_LAYERS.get(name)
+    if not spec:
+        return jsonify(error=f"unknown layer {name!r}"), 404
+    try:
+        r = req_lib.get(infra_counts.geoserver_url() + "/ows", params={
+            "service": "WFS", "version": "2.0.0", "request": "GetFeature",
+            "typeNames": spec["type_name"], "outputFormat": "application/json",
+            "srsName": "EPSG:4326", "propertyName": ",".join(spec["props"] + ["geom"]),
+        }, stream=True, timeout=(10, 300))
+    except req_lib.RequestException as exc:
+        return jsonify(error=f"GeoServer unreachable: {exc}"), 502
+    if not r.ok or "json" not in r.headers.get("Content-Type", ""):
+        return jsonify(error=f"GeoServer error {r.status_code}: {r.text[:300]}"), 502
+    return Response(r.iter_content(chunk_size=256 * 1024), content_type="application/geo+json")
+
+
+@app.route("/pyapi/infra/wms")
+def infra_wms():
+    """One map tile of a line layer (roads / nha_roads / rivers), drawn by GeoServer."""
+    import infra_counts
+    name = request.args.get("layer", "")
+    type_name = infra_counts.LINE_LAYERS.get(name)
+    if not type_name:
+        return jsonify(error=f"unknown layer {name!r}"), 404
+    try:
+        r = req_lib.get(infra_counts.geoserver_url() + "/wms", params={
+            "service": "WMS", "version": "1.1.1", "request": "GetMap",
+            "layers": type_name, "styles": "", "srs": "EPSG:3857",
+            "bbox": request.args.get("bbox", ""), "width": 256, "height": 256,
+            "format": "image/png", "transparent": "true",
+            "SLD_BODY": _infra_sld(name, type_name),
+        }, timeout=(10, 120))
+    except req_lib.RequestException:
+        return Response(status=204)
+    if not r.ok or not r.headers.get("Content-Type", "").startswith("image/"):
+        return Response(status=204)  # GeoServer down — blank tile, not a broken map
+    resp = Response(r.content, content_type=r.headers["Content-Type"])
+    resp.headers["Cache-Control"] = "public, max-age=86400"
+    return resp
+
+
+@app.route("/pyapi/infra/boundary/provinces")
+def infra_province_boundaries():
+    """Province outlines from GeoServer (held in memory after first fetch)."""
+    import infra_counts
+    try:
+        data = infra_counts.provinces_geojson()
+    except Exception as exc:
+        return jsonify(error=f"GeoServer unreachable: {exc}"), 502
+    resp = Response(data, content_type="application/geo+json")
+    resp.headers["Cache-Control"] = "public, max-age=3600"
+    return resp
+
+
+@app.route("/pyapi/infra/status")
+def infra_status():
+    import infra_counts
+    return jsonify(infra_counts.status())
+
+
+@app.route("/pyapi/infra/rebuild", methods=["POST"])
+def infra_rebuild():
+    """Recompute the stored totals from GeoServer (a few minutes)."""
+    import infra_counts
+    if infra_counts.status()["rebuilding"]:
+        return jsonify(status="already running")
+    threading.Thread(target=infra_counts._safe, args=(infra_counts.rebuild,), daemon=True).start()
+    return jsonify(status="started")
+
+
 @app.route("/pyapi/simex/precomputed")
 def simex_precomputed():
     """Return pre-computed building counts for all HPC-processed scenarios."""
@@ -2740,6 +2876,12 @@ def serve_static(path):
 # ── Entry point ─────────────────────────────────────────────
 
 if __name__ == "__main__":
+    # Infra: compute the stored road km once if missing; load district /
+    # province outlines for the live counts.
+    import infra_counts
+    infra_counts.build_if_missing()
+    infra_counts.warm()
+
     port = int(os.environ.get("PYBACKEND_PORT", 7543))
     production = os.environ.get("NIRRP_MODE", "dev").lower() == "production"
 

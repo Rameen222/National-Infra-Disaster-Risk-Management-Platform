@@ -135,7 +135,7 @@ export default function TehsilBuildingsPanel({ province, district, districtGeome
   const analyze = useCallback((tehsil, { force = false } = {}) => {
     const name = tehsil.name;
     setActive(name);
-    onTehsilActive?.(name);
+    onTehsilActive?.(name, tehsil.geometry);
     // Showing a tehsil's total buildings takes over the overlays.
     setScenarioShown(false);
     setClipShown(false);

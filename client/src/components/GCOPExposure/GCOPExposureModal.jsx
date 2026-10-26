@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import useDrag from '../../hooks/useDrag';
 import { fetchExposures, fetchExposureDetails, collectExposureDistricts } from './gcopApi';
 import { findBuildingEntry } from '../../utils/buildingData';
+import { INFRA_LAYERS } from '../../config/infraLayers';
 import './GCOPExposureModal.css';
 
 // Exposure IDs pinned to the top of the dropdown, in the order shown.
@@ -69,6 +70,29 @@ async function fetchBuildingCountInGeometry(district, geometry, onProgress, sign
 function formatCount(n) {
   if (n == null) return '—';
   return Number(n).toLocaleString();
+}
+
+// Facilities inside the footprint, counted live by GeoServer from the same
+// layers the map's Layers menu draws (pybackend/infra_counts.py). Road km
+// isn't counted per scenario. Colours match those layers.
+const layerColor = (id) => {
+  const s = INFRA_LAYERS.find((l) => l.id === id)?.style || {};
+  return s.circleColor || s.iconColor || s.lineColor;
+};
+const IMPACT_STATS = [
+  { id: 'schools',           label: 'Schools',           color: layerColor('schools') },
+  { id: 'health_facilities', label: 'Health facilities', color: layerColor('health_facilities') },
+];
+
+async function fetchInfraImpact(geometry, signal) {
+  const r = await fetch('/pyapi/infra/counts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ geometry }),
+    signal,
+  });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
 }
 
 export default function GCOPExposureModal({
@@ -194,6 +218,19 @@ export default function GCOPExposureModal({
 
     return () => ctrl.abort();
   }, [districts, exposureGeoJSON, isPrecomputed]);
+
+  // Schools / health facilities / road km inside the footprint (one request,
+  // sub-second — independent of the per-district building counts).
+  const [impact, setImpact] = useState({ status: 'idle', counts: null });
+  useEffect(() => {
+    if (!exposureGeoJSON) { setImpact({ status: 'idle', counts: null }); return undefined; }
+    const ctrl = new AbortController();
+    setImpact({ status: 'loading', counts: null });
+    fetchInfraImpact(exposureGeoJSON, ctrl.signal)
+      .then((counts) => setImpact({ status: 'done', counts }))
+      .catch((err) => { if (err.name !== 'AbortError') setImpact({ status: 'error', counts: null }); });
+    return () => ctrl.abort();
+  }, [exposureGeoJSON]);
 
   // Sort the displayed list: known counts (desc) → missing → errors. Within a
   // tie, alphabetical so the list is stable as new counts arrive.
@@ -391,6 +428,31 @@ export default function GCOPExposureModal({
                   ? formatCount(totalBuildings)
                   : <><span className="gcop-spin" /> {formatCount(totalBuildings)}</>}
               </div>
+            </div>
+
+            <div className="gcop-impact">
+              <div className="gcop-impact__title">Infrastructure inside footprint</div>
+              {impact.status === 'error' ? (
+                <div className="gcop-impact__msg">Infrastructure counts unavailable</div>
+              ) : (
+                <div className="gcop-impact__grid">
+                  {IMPACT_STATS.map(({ id, label, color, unit }) => {
+                    const v = impact.counts?.[id];
+                    return (
+                      <div key={id} className="gcop-impact__tile" style={{ '--impact-color': color }}>
+                        <div className="gcop-impact__val">
+                          {impact.status === 'loading'
+                            ? <span className="gcop-spin gcop-spin--sm" />
+                            : v == null
+                              ? <span className="gcop-impact__na" title="Dataset not available">n/a</span>
+                              : <>{formatCount(v)}{unit && <span className="gcop-impact__unit"> {unit}</span>}</>}
+                        </div>
+                        <div className="gcop-impact__lbl">{label}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <ul className="gcop-counts-list">
